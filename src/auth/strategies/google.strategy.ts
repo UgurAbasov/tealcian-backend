@@ -17,7 +17,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         done: VerifyCallback,
       ): Promise<any> {
         done(null, profile)
-        console.log(profile)
         return profile
       }
 }
