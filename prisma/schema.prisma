@@ -1,0 +1,52 @@
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id      Int      @id @default(autoincrement()) 
+  email   String   @unique
+  name    String 
+  password String? @unique
+  refreshToken String? @unique
+  rooms Room? @relation(fields: [roomId], references: [id])
+  roomId Int?
+  privates Private? @relation(fields: [privateId], references: [id])
+  privateId Int?
+  createdAt DateTime @default(now())
+}
+
+model Room {
+  id      Int      @id @default(autoincrement()) 
+  name String @unique
+  users User[]
+  ownerId Int
+  message Message[]
+  createdAt DateTime @default(now())
+  type String
+}
+
+model Private {
+  id      Int      @id @default(autoincrement()) 
+  name String? @unique
+  users User[]
+  message Message[]
+  createdAt DateTime @default(now())
+  type String 
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  room Room? @relation(fields: [roomId], references: [id])
+  roomId Int?
+  private Private? @relation(fields: [privateId], references: [id])
+  privateId Int?
+  body String
+}
