@@ -3,7 +3,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { HttpException, HttpStatus, Injectable, Request, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Request, Res, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Tokens } from './tokens.type';
 import { Prisma } from '@prisma/client';
@@ -139,7 +139,7 @@ export class AuthService {
 
           async getUser(@Request() req) {
             let userId = req.user.id
-          
+      
           const getUser = await this.prismaService.user.findUnique({
             where: {
               id: userId
@@ -153,13 +153,12 @@ export class AuthService {
           return getUser
         }
 
-        async googleRegister(req) {
+        async googleRegister(@Request() req, @Res() res) {
           try {
           const profile = req.user
           if (!profile) {
             return 'No user from google';
           }
-
           const findUser = await this.prismaService.user.findUnique({
             where: {
               email: profile.emails[0].value
@@ -195,7 +194,7 @@ export class AuthService {
               refreshToken
             }
           })
-
+          res.redirect('https://tealcian-frontend.vercel.app/chat')
           return {
             accessToken,
             refreshToken,
