@@ -4,7 +4,7 @@ import { RtGuard } from './guards/rt.guard';
 import { Tokens } from './tokens.type';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { Body, Controller, Post, UseGuards, Get, Res } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Get, Res, Redirect } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AtGuard } from './guards/at.guard';
 import { Request } from '@nestjs/common';
@@ -42,8 +42,9 @@ export class AuthController {
    
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  googleRegister(@Request() req, @Res() res: Response ) {
-    return this.authService.googleRegister(req,res);
+  @Redirect('https://tealcian-frontend.vercel.app/chat', 200)
+  googleRegister(@Request() req) {
+    return this.authService.googleRegister(req);
   }
  
   @Get('github-redirect')

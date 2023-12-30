@@ -153,11 +153,10 @@ export class AuthService {
           return getUser
         }
 
-        async googleRegister(@Request() req, @Res() res) {
+        async googleRegister(@Request() req) {
           try {
           const profile = req.user
           if (!profile) {
-            res.redirect('https://tealcian-frontend.vercel.app/chat')
             return 'No user from google';
           }
           const findUser = await this.prismaService.user.findUnique({
@@ -167,7 +166,6 @@ export class AuthService {
           })
 
           if(findUser){
-            res.redirect('https://tealcian-frontend.vercel.app/chat')
             throw new HttpException('This user already exist', HttpStatus.BAD_REQUEST);
           }
 
@@ -196,7 +194,6 @@ export class AuthService {
               refreshToken
             }
           })
-          res.redirect('https://tealcian-frontend.vercel.app/chat')
           return {
             accessToken,
             refreshToken,
