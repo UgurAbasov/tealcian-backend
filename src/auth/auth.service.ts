@@ -157,6 +157,7 @@ export class AuthService {
           try {
           const profile = req.user
           if (!profile) {
+            res.redirect('https://tealcian-frontend.vercel.app/chat')
             return 'No user from google';
           }
           const findUser = await this.prismaService.user.findUnique({
@@ -166,6 +167,7 @@ export class AuthService {
           })
 
           if(findUser){
+            res.redirect('https://tealcian-frontend.vercel.app/chat')
             throw new HttpException('This user already exist', HttpStatus.BAD_REQUEST);
           }
 
