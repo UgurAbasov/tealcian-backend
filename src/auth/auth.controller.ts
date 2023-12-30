@@ -45,6 +45,7 @@ export class AuthController {
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
   googleRegister(@Request() req, @Res() res: Response) {
+    res.redirect(302, 'https://tealcian-frontend.vercel.app');
     return this.authService.googleRegister(req);
   }
  
