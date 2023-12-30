@@ -200,6 +200,7 @@ export class AuthService {
             refreshToken,
             register: 'success',
           }
+          
         } catch(e) {
           throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
