@@ -51,5 +51,4 @@ export class AuthController {
   githubRegister(@Request() req) {
     return this.authService.githubRegister(req);
   }
-
 }
