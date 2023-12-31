@@ -81,7 +81,13 @@ export class AuthService {
                   solution: 'Password need to be minimum with 8 characters with big letter and number, if you registered with another resource then you need to log in with this resource.'
                 }, HttpStatus.BAD_REQUEST);
               }
-      
+              
+      if(!loginDto.password){
+        throw new HttpException({
+          massage: `You registered from another service`,
+          solution: 'Password need to be minimum with 8 characters with big letter and number, if you registered with another resource then you need to log in with this resource.'
+        }, HttpStatus.BAD_REQUEST);
+      }
               const isValidPass = await bcrypt.compare(loginDto.password, isUser.password)
                 if(!isValidPass){
                   throw new HttpException({
