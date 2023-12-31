@@ -153,7 +153,7 @@ export class AuthService {
           return getUser
         }
 
-        async googleRegister(@Request() req) {
+        async googleRegister(@Request() req, @Res() res) {
           try {
           const profile = req.user
           if (!profile) {
@@ -195,12 +195,13 @@ export class AuthService {
             }
           })
 
+          res.redirect(`https://tealcian-frontend.vercel.app?accessToken=${accessToken}&refreshToken=${refreshToken}`)
           return {
             accessToken,
             refreshToken,
             register: 'success',
           }
-          
+
         } catch(e) {
           throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

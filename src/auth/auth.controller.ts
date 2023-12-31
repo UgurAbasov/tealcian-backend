@@ -44,10 +44,10 @@ export class AuthController {
 
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
-  googleRegister(@Request() req) {
-    return this.authService.googleRegister(req);
+  googleRegister(@Request() req, @Res() res: Response) {
+    return this.authService.googleRegister(req,res);
   }
- 
+
   @Get('github-redirect')
   @UseGuards(GithubOAuthGuard)
   githubRegister(@Request() req) {
