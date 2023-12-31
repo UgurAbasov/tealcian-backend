@@ -105,8 +105,8 @@ export class AuthService {
                   refreshToken,
                   accessToken
                 }
-                
             } catch (e) {
+              return e
                 throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
             }
           }
