@@ -195,13 +195,12 @@ export class AuthService {
             }
           })
 
-          res.redirect(`https://tealcian-frontend.vercel.app?accessToken=${accessToken}&refreshToken=${refreshToken}`)
+          res.redirect(`https://tealcian-frontend.vercel.app/auth/login?accessToken=${accessToken}&refreshToken=${refreshToken}`)
           return {
             accessToken,
             refreshToken,
             register: 'success',
           }
-
         } catch(e) {
           throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
