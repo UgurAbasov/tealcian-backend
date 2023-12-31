@@ -84,9 +84,10 @@ export class AuthService {
       
               const isValidPass = await bcrypt.compare(loginDto.password, isUser.password)
                 if(!isValidPass){
-                  throw new HttpException('Email or password is not right', HttpStatus.BAD_REQUEST);
-          
-                  return;
+                  throw new HttpException({
+                    massage: `Make sure that you wrote correct email or password, because we couldn't find this account.`,
+                    solution: 'Password need to be minimum with 8 characters with big letter and number, if you registered with another resource then you need to log in with this resource.'
+                  }, HttpStatus.BAD_REQUEST);
                 }
               const accessToken = this.jwtService.sign({sub: isUser.id, email: isUser.email }, {secret: process.env.ACCESS_SECRET, expiresIn: '15m'})
               const refreshToken = this.jwtService.sign({sub: isUser.id, email: isUser.email }, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
@@ -108,8 +109,6 @@ export class AuthService {
             } catch (e) {
                 throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
-            
           }
 
           async refreshToken(refreshTokenObj: {refreshToken: string}): Promise<Tokens> {
