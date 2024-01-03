@@ -161,7 +161,7 @@ export class AuthService {
           if (!profile) {
             return 'No user from google';
           }
-          
+
           const findUser = await this.prismaService.user.findUnique({
             where: {
               email: profile.emails[0].value
@@ -169,7 +169,7 @@ export class AuthService {
           })
 
           if(findUser){
-            throw new HttpException('This user already exist', HttpStatus.BAD_REQUEST);
+            res.redirect(`https://tealcian-frontend.vercel.app/auth/login?isError=1`)
           }
 
           const result = await this.prismaService.user.create({
@@ -219,7 +219,7 @@ export class AuthService {
           })
 
           if(findUser){
-            throw new HttpException('This user already exist', HttpStatus.BAD_REQUEST);
+            res.redirect(`https://tealcian-frontend.vercel.app/auth/login?isError=1`)
           }
 
           const result = await this.prismaService.user.create({
