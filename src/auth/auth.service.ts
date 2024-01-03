@@ -75,16 +75,16 @@ export class AuthService {
                   email: loginDto.email
                 }
               })
-              if(isUser.password === null){
-                throw new HttpException({
-                  massage: `Make sure that you registered from our platform.`,
-                  solution: `If you didn't then login from platform that you want, for example from google`
-                }, HttpStatus.BAD_REQUEST);
-              }
               if(!isUser){
                 throw new HttpException({
                   massage: `Make sure that you wrote correct email or password, because we couldn't find this account.`,
                   solution: 'Password need to be minimum with 8 characters with big letter,number and symbol.'
+                }, HttpStatus.BAD_REQUEST);
+              }
+              if(isUser.password === null){
+                throw new HttpException({
+                  massage: `Make sure that you registered from our platform.`,
+                  solution: `If you didn't then login from platform that you want, for example from google`
                 }, HttpStatus.BAD_REQUEST);
               }
               const isValidPass = await bcrypt.compare(loginDto.password, isUser.password)
