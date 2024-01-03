@@ -78,7 +78,7 @@ export class AuthService {
               if(isUser.password === null){
                 throw new HttpException({
                   massage: `Make sure that you registered from our platform.`,
-                  solution: 'If you registered from another platform for example from google then you need to login from google also.'
+                  solution: `If you didn't then login from platform that you want, for example from google`
                 }, HttpStatus.BAD_REQUEST);
               }
               if(!isUser){
