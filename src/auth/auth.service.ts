@@ -168,10 +168,6 @@ export class AuthService {
             }
           })
 
-          if(findUser){
-            res.redirect(`https://tealcian-frontend.vercel.app/auth/login?isError=1`)
-          }
-
           const result = await this.prismaService.user.create({
             data: {
               email: profile.emails[0].value,
@@ -217,10 +213,6 @@ export class AuthService {
               email: profile.emails[0].value
             }
           })
-
-          if(findUser){
-            res.redirect(`https://tealcian-frontend.vercel.app/auth/login?isError=1`)
-          }
 
           const result = await this.prismaService.user.create({
             data: {
