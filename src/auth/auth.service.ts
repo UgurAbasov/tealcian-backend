@@ -75,6 +75,7 @@ export class AuthService {
                   email: loginDto.email
                 }
               })
+              
               if(!isUser){
                 throw new HttpException({
                   massage: `Make sure that you wrote correct email or password, because we couldn't find this account.`,
@@ -84,9 +85,11 @@ export class AuthService {
               if(isUser.password === null){
                 throw new HttpException({
                   massage: `Make sure that you registered from our platform.`,
-                  solution: `If you didn't then login from platform that you want, for example from google`
+                  solution: 'If you registered from another platform for example from google then you need to login from google also.'
                 }, HttpStatus.BAD_REQUEST);
               }
+
+
               const isValidPass = await bcrypt.compare(loginDto.password, isUser.password)
                 if(!isValidPass){
                   throw new HttpException({
