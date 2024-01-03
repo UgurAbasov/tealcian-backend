@@ -161,6 +161,7 @@ export class AuthService {
           if (!profile) {
             return 'No user from google';
           }
+          
           const findUser = await this.prismaService.user.findUnique({
             where: {
               email: profile.emails[0].value
@@ -203,7 +204,7 @@ export class AuthService {
         }
         }
 
-        async githubRegister(req) {
+        async githubRegister(req,  @Res() res) {
           try {
           const profile = req.user
           if (!profile) {
@@ -247,11 +248,7 @@ export class AuthService {
             }
           })
 
-          return {
-            accessToken,
-            refreshToken,
-            register: 'success'
-          }
+          res.redirect(`https://tealcian-frontend.vercel.app/auth/login?accessToken=${accessToken}&refreshToken=${refreshToken}`)
         } catch(e) {
           throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

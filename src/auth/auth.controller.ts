@@ -50,7 +50,7 @@ export class AuthController {
 
   @Get('github-redirect')
   @UseGuards(GithubOAuthGuard)
-  githubRegister(@Request() req) {
+  githubRegister(@Request() req, @Res() res: Response) {
     return this.authService.githubRegister(req);
   }
 }
