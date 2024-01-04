@@ -96,11 +96,7 @@ export class ChatService {
             })
 
             const array = [searchingUser.email, user.email]
-            console.log(array)
             for (let i = 1; i <= 2; i++) {
-                console.log(i)
-                console.log(array[i-1])
-                console.log(privated.id)
                 const userAdd = this.prismaService.user.update({
                     where: {
                         email: array[i-1]
@@ -110,10 +106,8 @@ export class ChatService {
                         roomId: null
                     }
                 })
-                userAdd.then((result) => {
-                    console.log(result)
-                })
             }
+            return 'good'
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
