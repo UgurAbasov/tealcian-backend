@@ -11,6 +11,7 @@ export class ChatService {
     constructor(private prismaService: PrismaService) { }
     async createRoom(createRoom: CreateRoomDto) {
         try {
+            // check room
             const findRoom = await this.prismaService.room.findUnique({
                 where: {
                     name: createRoom.name
@@ -81,7 +82,7 @@ export class ChatService {
             }
             const searchingUser = await this.prismaService.user.findUnique({
                 where: {
-                    email: user.email
+                    email: createPrivate.userEmail
                 }
             })
             if (!searchingUser) {
@@ -89,7 +90,7 @@ export class ChatService {
             }
             const privated = await this.prismaService.private.create({
                 data: {
-                    name: user.email,
+                    name: createPrivate.userEmail,
                     type: 'private'
                 }
             })
