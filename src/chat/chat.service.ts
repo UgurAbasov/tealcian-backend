@@ -91,20 +91,22 @@ export class ChatService {
             const privated = await this.prismaService.private.create({
                 data: {
                     name: createPrivate.userEmail,
-                    type: 'private'
+                    type: 'private',
                 }
             })
+
             const array = [searchingUser.email, user.email]
             for (let i = 1; i <= 2; i++) {
                 const userAdd = this.prismaService.user.update({
                     where: {
                         email: array[i-1]
                     },
-                    data:{
+                    data: { 
                         privateId: privated.id,
                         roomId: null
                     }
                 })
+                return userAdd
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
