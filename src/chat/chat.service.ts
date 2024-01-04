@@ -110,7 +110,9 @@ export class ChatService {
                         roomId: null
                     }
                 })
-                console.log(userAdd)
+                userAdd.then((result) => {
+                    console.log(result)
+                })
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
