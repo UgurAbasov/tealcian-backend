@@ -96,6 +96,7 @@ export class ChatService {
             })
 
             const array = [searchingUser.email, user.email]
+            const newArr = []
             console.log(array)
             for (let i = 1; i <= 2; i++) {
                 console.log(i)
@@ -110,9 +111,9 @@ export class ChatService {
                         roomId: null
                     }
                 })
-                console.log(userAdd)
-                return userAdd
+                newArr.push(userAdd)
             }
+            return newArr
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
