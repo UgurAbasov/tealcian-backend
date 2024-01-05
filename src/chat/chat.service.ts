@@ -53,7 +53,6 @@ export class ChatService {
                     },
                     data: {
                         roomId: serchingRoom.id,
-                        privateId: null
                     }
                 })
                 if (!user) {
@@ -95,18 +94,18 @@ export class ChatService {
                   type: 'private',
                 },
               });
-              const array = [searchingUser.id, user.id]
-              const privating = await this.prismaService.private.update({
-                where: { id: privated.id },
-                data: {
-                    users: {
-                        connect: array.map(id => ({ id })),
-                      },
-                },
-              });
-                          
-              
 
+              const array = [searchingUser.id, user.id]
+             for (let i = 1; i <= 2; i++) {
+              const privating = await this.prismaService.userPrivate.create({
+                data: {
+                    userId: array[i-1],
+                    privateId: privated.id
+                }
+              });
+            }
+            
+              
             // for (let i = 1; i <= 2; i++) {
             //     const userAdd = this.prismaService.user.update({
             //         where: {
@@ -123,7 +122,6 @@ export class ChatService {
             // }
             return {
                 result: 'success',
-                privating
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);

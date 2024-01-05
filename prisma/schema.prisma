@@ -17,8 +17,7 @@ model User {
   refreshToken String? @unique
   rooms Room? @relation(fields: [roomId], references: [id])
   roomId Int?
-  privates Private? @relation(fields: [privateId], references: [id])
-  privateId Int?
+  privates UserPrivate[]
   createdAt DateTime @default(now())
 }
 
@@ -35,10 +34,20 @@ model Room {
 model Private {
   id      Int      @id @default(autoincrement()) 
   name String? @unique
-  users User[]
+  users UserPrivate[]
   message Message[]
   createdAt DateTime @default(now())
   type String 
+}
+
+
+model UserPrivate {
+  userId    Int
+  privateId Int
+  user      User @relation(fields: [userId], references: [id])
+  private   Private @relation(fields: [privateId], references: [id])
+
+  @@id([userId, privateId])
 }
 
 model Message {
