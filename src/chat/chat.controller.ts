@@ -1,7 +1,7 @@
 import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { ChatService } from './chat.service';
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 
 @Controller('chat')
 export class ChatController {
@@ -15,5 +15,10 @@ export class ChatController {
     @Post('private')
     createPrivate(@Body() createPrivate: CreatePrivateDto){
         return this.chatService.createPrivate(createPrivate)
+    }
+
+    @Get('getPrivates')
+    getUserPrivates(@Body() refreshToken: any){
+        return this.chatService.getUserPrivates(refreshToken)
     }
 }
