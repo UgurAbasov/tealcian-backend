@@ -88,6 +88,7 @@ export class ChatService {
             if (!searchingUser) {
                 throw new Error(`We don't know about this user`)
             }
+
             const privated = await this.prismaService.private.create({
                 data: {
                     name: createPrivate.userEmail,
@@ -106,8 +107,13 @@ export class ChatService {
                         roomId: null
                     }
                 })
+                userAdd.then((result) => {
+                    console.log(result)
+                })
             }
-            return 'good'
+            return {
+                result: 'success'
+            }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
