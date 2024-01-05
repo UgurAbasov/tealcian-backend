@@ -14,15 +14,6 @@ export class ChatService {
     constructor(private prismaService: PrismaService) { }
     async createRoom(createRoom: CreateRoomDto) {
         try {
-            // check room
-            // const findRoom = await this.prismaService.room.findUnique({
-            //     where: {
-            //         name: createRoom.name
-            //     }
-            // })
-            // if (findRoom) {
-            //     throw new HttpException('This room was already used', HttpStatus.INTERNAL_SERVER_ERROR);
-            // }
             // find owner
             const owner = await this.prismaService.user.findUnique({
                 where: {
@@ -32,41 +23,51 @@ export class ChatService {
             if (!owner) {
                 throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            const unknowsUsers = []
+            const users = [owner.id]
+            for(let i = 0; i < createRoom.users.length; i++){
+                const searchingUsers = await this.prismaService.user.findUnique({
+                    where: {
+                        email: createRoom.users[i]
+                    }
+                })
+                if(!searchingUsers){
+                    unknowsUsers.push(createRoom.users[i])
+                } else {
+                    users.push(searchingUsers.id)
+                }
+            }
+            if(unknowsUsers.length > 0){
+                const splitUsers = unknowsUsers.join(', ')
+                throw new HttpException(`We don't know about these users: ${splitUsers}`, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             // create room schema
             const ownerId = owner.id
-            // const room = await this.prismaService.room.create({
-            //     data: {
-            //         name: createRoom.name,
-            //         type: 'room',
-            //         ownerId
-            //     }
-            // })
-            // search room
-            // const serchingRoom = await this.prismaService.room.findUnique({
-            //     where: {
-            //         name: createRoom.name
-            //     }
-            // })
-            // take users
-            const usersArr = createRoom.users
-            // for (let i = 1; i <= usersArr.length; i++) {
-            //     const user = await this.prismaService.user.update({
-            //         where: {
-            //             email: usersArr[i - 1]
-            //         },
-            //         data: {
-            //             roomId: serchingRoom.id,
-            //         }
-            //     })
-            //     if (!user) {
-            //         throw new Error(`We don't know about this user`)
-            //     }
+            const room = await this.prismaService.room.create({
+                data: {
+                    name: createRoom.name,
+                    type: 'room',
+                    ownerId,
+                    uniqueId: simpleHash(createRoom.users)
+                }
+            })
 
-            // }
+            // take users
+            for (let i = 1; i <= users.length; i++) {
+                const rooming = await this.prismaService.userRoom.create({
+                    data: {
+                        userId: users[i],
+                        roomId: room.id
+                    }
+                })
+            }
             return {
-                mess: 'goood'
+                result: 'goood'
             }
         } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                throw new HttpException('You already have chat with this user', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
