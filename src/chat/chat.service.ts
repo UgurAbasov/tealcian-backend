@@ -7,6 +7,8 @@ import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { Prisma } from '@prisma/client';
+import simpleHash from 'src/utils/hash';
+
 @Injectable()
 export class ChatService {
     constructor(private prismaService: PrismaService) { }
@@ -88,6 +90,7 @@ export class ChatService {
                 throw new Error(`We don't know about this user`)
             }
 
+
             const privated = await this.prismaService.private.create({
                 data: {
                   name: createPrivate.userEmail,
@@ -95,11 +98,14 @@ export class ChatService {
                 },
               });
 
-              const array = [searchingUser.id, user.id]
+              
+              const arrayOfId = [searchingUser.id, user.id]
+              const arrayofEmail = [searchingUser.email, user.email]
              for (let i = 1; i <= 2; i++) {
               const privating = await this.prismaService.userPrivate.create({
                 data: {
-                    userId: array[i-1],
+                    uniqueId: simpleHash(arrayofEmail),
+                    userId: arrayOfId[i-1],
                     privateId: privated.id
                 }
               });

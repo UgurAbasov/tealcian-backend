@@ -33,6 +33,7 @@ CREATE TABLE "Private" (
 
 -- CreateTable
 CREATE TABLE "UserPrivate" (
+    "uniqueId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "privateId" INTEGER NOT NULL,
 
@@ -41,6 +42,7 @@ CREATE TABLE "UserPrivate" (
 
 -- CreateTable
 CREATE TABLE "UserRoom" (
+    "uniqueId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "roomId" INTEGER NOT NULL,
 
@@ -66,6 +68,12 @@ CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_refreshToken_key" ON "User"("refreshToken");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserPrivate_uniqueId_key" ON "UserPrivate"("uniqueId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserRoom_uniqueId_key" ON "UserRoom"("uniqueId");
 
 -- AddForeignKey
 ALTER TABLE "UserPrivate" ADD CONSTRAINT "UserPrivate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

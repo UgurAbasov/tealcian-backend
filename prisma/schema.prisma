@@ -41,6 +41,7 @@ model Private {
 
 
 model UserPrivate {
+  uniqueId Int @unique
   userId    Int
   privateId Int
   user      User @relation(fields: [userId], references: [id])
@@ -50,6 +51,7 @@ model UserPrivate {
 }
 
 model UserRoom {
+  uniqueId Int @unique
   userId    Int
   roomId Int
   user      User @relation(fields: [userId], references: [id])
