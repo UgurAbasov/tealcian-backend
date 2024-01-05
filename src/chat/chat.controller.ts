@@ -17,7 +17,7 @@ export class ChatController {
         return this.chatService.createPrivate(createPrivate)
     }
 
-    @Get('getPrivates')
+    @Post('getPrivates')
     getUserPrivates(@Body() refreshToken: any){
         return this.chatService.getUserPrivates(refreshToken)
     }
