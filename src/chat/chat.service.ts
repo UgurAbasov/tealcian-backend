@@ -124,10 +124,9 @@ export class ChatService {
 
     async getUserPrivates(refreshToken: any){
         try {
-            console.log(refreshToken)
             const user = await this.prismaService.user.findUnique({
                 where: {
-                    refreshToken: refreshToken
+                    refreshToken: refreshToken.refreshToken
                 },
                 include: {
                     privates: true
