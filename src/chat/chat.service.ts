@@ -88,31 +88,42 @@ export class ChatService {
             if (!searchingUser) {
                 throw new Error(`We don't know about this user`)
             }
+            const array = [searchingUser.email, user.email]
 
             const privated = await this.prismaService.private.create({
                 data: {
-                    name: createPrivate.userEmail,
-                    type: 'private',
-                }
-            })
-
-            const array = [searchingUser.email, user.email]
-            for (let i = 1; i <= 2; i++) {
-                const userAdd = this.prismaService.user.update({
-                    where: {
-                        email: array[i-1]
+                  name: createPrivate.userEmail,
+                  type: 'private',
+                  users: {
+                    createMany: {
+                      data: array.map(email => ({
+                        name: "SomeDefaultName",
+                        email: email,
+                      })),
                     },
-                    data: { 
-                        privateId: privated.id,
-                        roomId: null
-                    }
-                })
-                userAdd.then((result) => {
-                    console.log(result)
-                })
-            }
+                  },
+                },
+              });
+                          
+              
+
+            // for (let i = 1; i <= 2; i++) {
+            //     const userAdd = this.prismaService.user.update({
+            //         where: {
+            //             email: array[i-1]
+            //         },
+            //         data: { 
+            //             privateId: privated.id,
+            //             roomId: null
+            //         }
+            //     })
+            //     userAdd.then((result) => {
+            //         console.log(result)
+            //     })
+            // }
             return {
-                result: 'success'
+                result: 'success',
+                privated
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
