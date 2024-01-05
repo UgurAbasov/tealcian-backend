@@ -88,20 +88,20 @@ export class ChatService {
             if (!searchingUser) {
                 throw new Error(`We don't know about this user`)
             }
-            const array = [searchingUser.email, user.email]
 
             const privated = await this.prismaService.private.create({
                 data: {
                   name: createPrivate.userEmail,
                   type: 'private',
-                  users: {
-                    createMany: {
-                      data: array.map(email => ({
-                        name: "SomeDefaultName",
-                        email: email,
-                      })),
-                    },
-                  },
+                },
+              });
+              const array = [searchingUser.id, user.id]
+              const privating = await this.prismaService.private.update({
+                where: { id: privated.id },
+                data: {
+                    users: {
+                        connect: array.map(id => ({ id })),
+                      },
                 },
               });
                           
@@ -123,7 +123,7 @@ export class ChatService {
             // }
             return {
                 result: 'success',
-                privated
+                privating
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
