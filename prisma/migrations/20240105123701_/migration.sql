@@ -5,7 +5,6 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "password" TEXT,
     "refreshToken" TEXT,
-    "roomId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -41,6 +40,14 @@ CREATE TABLE "UserPrivate" (
 );
 
 -- CreateTable
+CREATE TABLE "UserRoom" (
+    "userId" INTEGER NOT NULL,
+    "roomId" INTEGER NOT NULL,
+
+    CONSTRAINT "UserRoom_pkey" PRIMARY KEY ("userId","roomId")
+);
+
+-- CreateTable
 CREATE TABLE "Message" (
     "id" SERIAL NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -67,13 +74,16 @@ CREATE UNIQUE INDEX "Room_name_key" ON "Room"("name");
 CREATE UNIQUE INDEX "Private_name_key" ON "Private"("name");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "UserPrivate" ADD CONSTRAINT "UserPrivate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserPrivate" ADD CONSTRAINT "UserPrivate_privateId_fkey" FOREIGN KEY ("privateId") REFERENCES "Private"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRoom" ADD CONSTRAINT "UserRoom_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRoom" ADD CONSTRAINT "UserRoom_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE SET NULL ON UPDATE CASCADE;

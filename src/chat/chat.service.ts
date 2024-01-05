@@ -46,20 +46,20 @@ export class ChatService {
             })
             // take users
             const usersArr = createRoom.users
-            for (let i = 1; i <= usersArr.length; i++) {
-                const user = await this.prismaService.user.update({
-                    where: {
-                        email: usersArr[i - 1]
-                    },
-                    data: {
-                        roomId: serchingRoom.id,
-                    }
-                })
-                if (!user) {
-                    throw new Error(`We don't know about this user`)
-                }
+            // for (let i = 1; i <= usersArr.length; i++) {
+            //     const user = await this.prismaService.user.update({
+            //         where: {
+            //             email: usersArr[i - 1]
+            //         },
+            //         data: {
+            //             roomId: serchingRoom.id,
+            //         }
+            //     })
+            //     if (!user) {
+            //         throw new Error(`We don't know about this user`)
+            //     }
 
-            }
+            // }
             return {
                 mess: 'goood'
             }
@@ -104,22 +104,8 @@ export class ChatService {
                 }
               });
             }
+
             
-              
-            // for (let i = 1; i <= 2; i++) {
-            //     const userAdd = this.prismaService.user.update({
-            //         where: {
-            //             email: array[i-1]
-            //         },
-            //         data: { 
-            //             privateId: privated.id,
-            //             roomId: null
-            //         }
-            //     })
-            //     userAdd.then((result) => {
-            //         console.log(result)
-            //     })
-            // }
             return {
                 result: 'success',
             }
