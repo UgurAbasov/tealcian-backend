@@ -6,20 +6,21 @@ import { PrismaService } from './../prisma/prisma.service';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { CreatePrivateDto } from './dto/createPrivate.dto';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class ChatService {
     constructor(private prismaService: PrismaService) { }
     async createRoom(createRoom: CreateRoomDto) {
         try {
             // check room
-            const findRoom = await this.prismaService.room.findUnique({
-                where: {
-                    name: createRoom.name
-                }
-            })
-            if (findRoom) {
-                throw new HttpException('This room was already used', HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            // const findRoom = await this.prismaService.room.findUnique({
+            //     where: {
+            //         name: createRoom.name
+            //     }
+            // })
+            // if (findRoom) {
+            //     throw new HttpException('This room was already used', HttpStatus.INTERNAL_SERVER_ERROR);
+            // }
             // find owner
             const owner = await this.prismaService.user.findUnique({
                 where: {
@@ -39,11 +40,11 @@ export class ChatService {
                 }
             })
             // search room
-            const serchingRoom = await this.prismaService.room.findUnique({
-                where: {
-                    name: createRoom.name
-                }
-            })
+            // const serchingRoom = await this.prismaService.room.findUnique({
+            //     where: {
+            //         name: createRoom.name
+            //     }
+            // })
             // take users
             const usersArr = createRoom.users
             // for (let i = 1; i <= usersArr.length; i++) {
@@ -65,7 +66,6 @@ export class ChatService {
             }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-            console.log(`error: ${e}`)
         }
     }
 
@@ -77,7 +77,7 @@ export class ChatService {
                 }
             })
             if (!user) {
-                throw new HttpException('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
             }
             const searchingUser = await this.prismaService.user.findUnique({
                 where: {
@@ -104,12 +104,14 @@ export class ChatService {
                 }
               });
             }
-
             
             return {
                 result: 'success',
             }
         } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                throw new HttpException('You already have chat with this user', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -67,12 +67,6 @@ CREATE UNIQUE INDEX "User_password_key" ON "User"("password");
 -- CreateIndex
 CREATE UNIQUE INDEX "User_refreshToken_key" ON "User"("refreshToken");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Room_name_key" ON "Room"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Private_name_key" ON "Private"("name");
-
 -- AddForeignKey
 ALTER TABLE "UserPrivate" ADD CONSTRAINT "UserPrivate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
