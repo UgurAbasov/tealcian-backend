@@ -34,13 +34,13 @@ export class ChatService {
             }
             // create room schema
             const ownerId = owner.id
-            const room = await this.prismaService.room.create({
-                data: {
-                    name: createRoom.name,
-                    type: 'room',
-                    ownerId
-                }
-            })
+            // const room = await this.prismaService.room.create({
+            //     data: {
+            //         name: createRoom.name,
+            //         type: 'room',
+            //         ownerId
+            //     }
+            // })
             // search room
             // const serchingRoom = await this.prismaService.room.findUnique({
             //     where: {
@@ -90,21 +90,20 @@ export class ChatService {
                 throw new Error(`We don't know about this user`)
             }
 
-
+            const arrayofEmail = [searchingUser.email, user.email]
             const privated = await this.prismaService.private.create({
                 data: {
+                uniqueId: simpleHash(arrayofEmail),
                   name: createPrivate.userEmail,
                   type: 'private',
                 },
               });
 
-              
+
               const arrayOfId = [searchingUser.id, user.id]
-              const arrayofEmail = [searchingUser.email, user.email]
              for (let i = 1; i <= 2; i++) {
               const privating = await this.prismaService.userPrivate.create({
                 data: {
-                    uniqueId: simpleHash(arrayofEmail),
                     userId: arrayOfId[i-1],
                     privateId: privated.id
                 }

@@ -21,6 +21,7 @@ model User {
 }
 
 model Room {
+  uniqueId Int @unique
   id      Int      @id @default(autoincrement()) 
   name String
   users UserRoom[]
@@ -31,6 +32,7 @@ model Room {
 }
 
 model Private {
+  uniqueId Int @unique
   id      Int      @id @default(autoincrement()) 
   name String?
   users UserPrivate[]
@@ -41,17 +43,14 @@ model Private {
 
 
 model UserPrivate {
-  uniqueId Int @unique
   userId    Int
   privateId Int
   user      User @relation(fields: [userId], references: [id])
   private   Private @relation(fields: [privateId], references: [id])
-
   @@id([userId, privateId])
 }
 
 model UserRoom {
-  uniqueId Int @unique
   userId    Int
   roomId Int
   user      User @relation(fields: [userId], references: [id])
