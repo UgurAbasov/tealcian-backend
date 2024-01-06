@@ -133,24 +133,19 @@ export class ChatService {
               },
             });
 
-                        return {
-                user,
-                mess: 'halo'
+        if (!user) {
+              throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+          // good
+            const resultArr = [];
+            for (let i = 0; i < user.privates.length + 1; i++) {
+              const userPrivateRecords = await this.prismaService.userPrivate.findMany({
+                where: {
+                  privateId: user.privates[i].privateId,
+                },
+              });
         
-            // if (!user) {
-            //   throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
-            // }
-          
-            // const resultArr = [];
-          
-            // for (let i = 0; i < user.privates.length + 1; i++) {
-            //   const userPrivateRecords = await this.prismaService.userPrivate.findMany({
-            //     where: {
-            //       privateId: user.privates[i].privateId,
-            //     },
-            //   });
-          
+              resultArr.push(userPrivateRecords)
             //   for (let j = 0; j < userPrivateRecords.length + 1; j++) {
             //     const findUser = await this.prismaService.user.findUnique({
             //       where: {
@@ -162,7 +157,11 @@ export class ChatService {
             //       resultArr.push(findUser);
             //     }
             //   }
-            // }
+            }
+            return {
+                resultArr,
+                mess: 'halo'
+            }
           
             // return {
             //   success: 1,
