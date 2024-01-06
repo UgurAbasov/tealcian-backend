@@ -153,7 +153,7 @@ export class ChatService {
                 });
           
                 if (findUser && findUser.id !== user.id) {
-                  resultArr.push(findUser);
+                  resultArr.push(findUser.email);
                 }
               }
             }
