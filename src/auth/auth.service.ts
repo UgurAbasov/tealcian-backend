@@ -174,6 +174,15 @@ export class AuthService {
           if(findUser){
             const accessToken = this.jwtService.sign({sub: findUser.id, email: findUser.email }, {secret: process.env.ACCESS_SECRET, expiresIn: '15m'})
             const refreshToken = this.jwtService.sign({sub: findUser.id, email: findUser.email }, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
+
+          const addRefresh = await this.prismaService.user.update({
+            where: {
+              email: findUser.email
+            },
+            data: {
+              refreshToken
+            }
+          })
             res.redirect(`https://tealcian-frontend.vercel.app/auth/login?accessToken=${accessToken}&refreshToken=${refreshToken}`)
           }
 
@@ -225,6 +234,15 @@ export class AuthService {
           if(findUser){
             const accessToken = this.jwtService.sign({sub: findUser.id, email: findUser.email }, {secret: process.env.ACCESS_SECRET, expiresIn: '15m'})
             const refreshToken = this.jwtService.sign({sub: findUser.id, email: findUser.email }, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
+
+          const addRefresh = await this.prismaService.user.update({
+            where: {
+              email: findUser.email
+            },
+            data: {
+              refreshToken
+            }
+          })
             res.redirect(`https://tealcian-frontend.vercel.app/auth/login?accessToken=${accessToken}&refreshToken=${refreshToken}`)
           }
 
