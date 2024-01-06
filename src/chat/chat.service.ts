@@ -155,9 +155,13 @@ export class ChatService {
                 }
               })
 
+              if(findUser === user){
+                i--
+              } else {
               if(findUser){
                 resultArr.push(findUser)
               }
+            }
             }
             return resultArr
         } catch (e) {
