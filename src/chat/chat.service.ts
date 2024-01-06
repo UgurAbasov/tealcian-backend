@@ -147,7 +147,9 @@ export class ChatService {
                 where: {
                   privateId: user.privates[i].privateId,
                 },
-              });
+              }); 
+
+              console.log(userPrivateRecords)
               if(userPrivateRecords){
                 resultArr.push(userPrivateRecords)
               }
