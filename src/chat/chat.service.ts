@@ -142,8 +142,11 @@ export class ChatService {
                         id: user.privates[i].userId
                     }
                 })
+                if(getUsers){
+                    resultArr.push(getUsers)
+                }
             }
-            return user
+            return resultArr
         } catch (e) {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
         }
