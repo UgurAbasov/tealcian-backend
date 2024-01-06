@@ -158,8 +158,10 @@ export class ChatService {
               console.log(user)
 
               if(findUser === user){
+                console.log('halo')
                 i--
               } else {
+                console.log(findUser)
               if(findUser){
                 resultArr.push(findUser)
               }
