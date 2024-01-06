@@ -135,12 +135,7 @@ export class ChatService {
             if (!user) {
                 throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
-            // const userPrivateRecords = await this.prismaService.userPrivate.findMany({
-            //     where: {
-            //       privateId: user.privates.privateId,
-            //     },
-            //   });
+            
             const resultArr = []
             for(let i = 0; i < user.privates.length; i++){
            const userPrivateRecords = await this.prismaService.userPrivate.findMany({
