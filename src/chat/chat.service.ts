@@ -149,14 +149,10 @@ export class ChatService {
                     id: userPrivateRecords[i].userId
                 }
               })
-              console.log(findUser)
-              console.log(user)
 
               if(findUser === user){
-                console.log('halo')
                 i--
               } else {
-                console.log(findUser)
               if(findUser){
                 resultArr.push(findUser)
               }
