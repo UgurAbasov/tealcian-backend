@@ -124,7 +124,6 @@ export class ChatService {
 
     async getUserPrivates(refreshToken: any){
         try {
-
             console.log(refreshToken)
             const user = await this.prismaService.user.findUnique({
                 where: {
@@ -135,7 +134,7 @@ export class ChatService {
                 }
             })
             if (!user) {
-                throw new HttpException(`Something went wrong ${refreshToken}`, HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             
             const resultArr = []
@@ -157,7 +156,10 @@ export class ChatService {
                   }
               }
             }
-            return resultArr
+            return {
+                success: 1,
+                arr: resultArr
+            }
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
