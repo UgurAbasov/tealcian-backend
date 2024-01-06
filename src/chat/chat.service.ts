@@ -149,9 +149,14 @@ export class ChatService {
                 },
               }); 
 
-              console.log(userPrivateRecords)
-              if(userPrivateRecords){
-                resultArr.push(userPrivateRecords)
+              const findUser =  await this.prismaService.user.findUnique({
+                where: {
+                    id: userPrivateRecords[i].userId
+                }
+              })
+
+              if(findUser){
+                resultArr.push(findUser)
               }
             }
             return resultArr
