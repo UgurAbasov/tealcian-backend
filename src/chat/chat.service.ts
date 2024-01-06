@@ -135,6 +135,14 @@ export class ChatService {
             if (!user) {
                 throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
             }
+            const resultArr = []
+            for(let i = 0; i < user.privates.length; i++){
+                const getUsers = await this.prismaService.user.findUnique({
+                    where: {
+                        id: user.privates[i].userId
+                    }
+                })
+            }
             return user
         } catch (e) {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
