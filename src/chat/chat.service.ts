@@ -150,9 +150,12 @@ export class ChatService {
                 }
               })
 
+              console.log(findUser)
+              console.log(user)
               if(findUser === user){
                 i--
               } else {
+                console.log(findUser)
               if(findUser){
                 resultArr.push(findUser)
               }
