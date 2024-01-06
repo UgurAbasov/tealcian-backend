@@ -145,7 +145,7 @@ export class ChatService {
                 },
               });
                   // good
-              for (let j = 0; j < userPrivateRecords.length + 1; j++) {
+              for (let j = 0; j < userPrivateRecords.length; j++) {
                 const findUser = await this.prismaService.user.findUnique({
                   where: {
                     id: userPrivateRecords[j].userId,
