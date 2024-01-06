@@ -124,46 +124,49 @@ export class ChatService {
 
     async getUserPrivates(refreshToken: any){
         try {
-            console.log(refreshToken)
-            const user = await this.prismaService.user.findUnique({
-              where: {
-                refreshToken: refreshToken.refreshToken,
-              },
-              include: {
-                privates: true,
-              },
-            });
-          
-            if (!user) {
-              throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-          
-            const resultArr = [];
-          
-            for (let i = 0; i < user.privates.length + 1; i++) {
-              const userPrivateRecords = await this.prismaService.userPrivate.findMany({
-                where: {
-                  privateId: user.privates[i].privateId,
-                },
-              });
-          
-              for (let j = 0; j < userPrivateRecords.length + 1; j++) {
-                const findUser = await this.prismaService.user.findUnique({
-                  where: {
-                    id: userPrivateRecords[j].userId,
-                  },
-                });
-          
-                if (findUser && findUser.id !== user.id) {
-                  resultArr.push(findUser);
-                }
-              }
-            }
-          
             return {
-              success: 1,
-              arr: resultArr,
-            };
+                refreshToken,
+                mess: 'halo'
+            }
+            // const user = await this.prismaService.user.findUnique({
+            //   where: {
+            //     refreshToken: refreshToken.refreshToken,
+            //   },
+            //   include: {
+            //     privates: true,
+            //   },
+            // });
+        
+            // if (!user) {
+            //   throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
+            // }
+          
+            // const resultArr = [];
+          
+            // for (let i = 0; i < user.privates.length + 1; i++) {
+            //   const userPrivateRecords = await this.prismaService.userPrivate.findMany({
+            //     where: {
+            //       privateId: user.privates[i].privateId,
+            //     },
+            //   });
+          
+            //   for (let j = 0; j < userPrivateRecords.length + 1; j++) {
+            //     const findUser = await this.prismaService.user.findUnique({
+            //       where: {
+            //         id: userPrivateRecords[j].userId,
+            //       },
+            //     });
+          
+            //     if (findUser && findUser.id !== user.id) {
+            //       resultArr.push(findUser);
+            //     }
+            //   }
+            // }
+          
+            // return {
+            //   success: 1,
+            //   arr: resultArr,
+            // };
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
           }
