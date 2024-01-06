@@ -135,7 +135,7 @@ export class ChatService {
                 }
             })
             if (!user) {
-                throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new HttpException(`Something went wrong ${refreshToken}`, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             
             const resultArr = []
