@@ -136,25 +136,23 @@ export class ChatService {
                 throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
-            return user.privates
-
             // const userPrivateRecords = await this.prismaService.userPrivate.findMany({
             //     where: {
             //       privateId: user.privates.privateId,
             //     },
             //   });
-            // const resultArr = []
-            // for(let i = 0; i < user.privates.length; i++){
-            //     const getUsers = await this.prismaService.user.findUnique({
-            //         where: {
-            //             id: user.privates[i].userId
-            //         }
-            //     })
-            //     if(getUsers){
-            //         resultArr.push(getUsers)
-            //     }
-            // }
-            // return resultArr
+            const resultArr = []
+            for(let i = 0; i < user.privates.length; i++){
+           const userPrivateRecords = await this.prismaService.userPrivate.findMany({
+                where: {
+                  privateId: user.privates[i].privateId,
+                },
+              });
+              if(userPrivateRecords){
+                resultArr.push(userPrivateRecords)
+              }
+            }
+            return resultArr
         } catch (e) {
             throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
         }
