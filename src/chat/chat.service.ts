@@ -154,6 +154,8 @@ export class ChatService {
                     id: userPrivateRecords[i].userId
                 }
               })
+              console.log(findUser)
+              console.log(user)
 
               if(findUser === user){
                 i--
