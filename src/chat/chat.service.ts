@@ -124,6 +124,7 @@ export class ChatService {
 
     async getUserPrivates(refreshToken: any){
         try {
+            console.log(refreshToken)
             const user = await this.prismaService.user.findUnique({
               where: {
                 refreshToken: refreshToken.refreshToken,
@@ -166,7 +167,6 @@ export class ChatService {
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
           }
-          
     }
 }
 
