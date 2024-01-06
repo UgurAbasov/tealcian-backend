@@ -159,7 +159,7 @@ export class ChatService {
             }
             return resultArr
         } catch (e) {
-            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
