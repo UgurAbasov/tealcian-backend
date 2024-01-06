@@ -138,7 +138,7 @@ export class ChatService {
             }
           // good
             const resultArr = [];
-            for (let i = 0; i < user.privates.length + 1; i++) {
+            for (let i = 0; i < user.privates.length; i++) {
               const userPrivateRecords = await this.prismaService.userPrivate.findMany({
                 where: {
                   privateId: user.privates[i].privateId,
