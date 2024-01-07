@@ -5,6 +5,7 @@ import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, We
 import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
+import groupMessagesByDate from 'src/utils/separateTime';
 
 
 @WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] } })
@@ -47,9 +48,9 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 userName: getUser.name
             })
         }
-
+        
             client.join(addUser.roomId.toString())
-            client.emit('join', arr)
+            client.emit('join', groupMessagesByDate(arr))
     } catch(e){
         client.emit('join', { error: e.message })
     }

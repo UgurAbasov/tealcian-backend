@@ -1,9 +1,13 @@
-function groupMessagesByDate(messages) {
+export default function groupMessagesByDate(messages) {
     const groupedMessages = {};
   
     messages.forEach((message) => {
       const messageDate = new Date(message.time);
-      const formattedDate = messageDate.toDateString();
+      const formattedDate = messageDate.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+      });
   
       if (!groupedMessages[formattedDate]) {
         groupedMessages[formattedDate] = {
@@ -15,7 +19,9 @@ function groupMessagesByDate(messages) {
       groupedMessages[formattedDate].data.push(message);
     });
   
-const result = Object.values(groupedMessages);
+    // Convert the object into an array of values
+    const result = Object.values(groupedMessages);
   
     return result;
   }
+  
