@@ -30,13 +30,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 }
             }
         })
-        console.log(room)
-
-        const getRoomName = await this.prismaService.private.findUnique({
-            where: {
-                id: addUser.roomId
-            }
-        })
 
             client.join(addUser.roomId.toString())
             client.emit('join', room)
