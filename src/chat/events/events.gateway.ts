@@ -44,11 +44,10 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             })
             arr.push({
                 body: room.message[i].body,
-                createdAt: room.message[i].createdAt,
+                time: room.message[i].createdAt,
                 userName: getUser.name
             })
         }
-        console.log(arr)
         console.log(groupMessagesByDate(arr))
             client.join(addUser.roomId.toString())
             client.emit('join', groupMessagesByDate(arr))
