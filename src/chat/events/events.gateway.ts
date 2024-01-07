@@ -36,7 +36,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
         const arr = []
         for(let i = 0; i < room.message.length; i++){
-            const getUser = await this.prismaService.private.findUnique({
+            const getUser = await this.prismaService.user.findUnique({
                 where: {
                     id: room.message[i].userId
                 }
