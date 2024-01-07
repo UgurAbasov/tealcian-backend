@@ -48,7 +48,8 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 userName: getUser.name
             })
         }
-        
+        console.log(arr)
+        console.log(groupMessagesByDate(arr))
             client.join(addUser.roomId.toString())
             client.emit('join', groupMessagesByDate(arr))
     } catch(e){
