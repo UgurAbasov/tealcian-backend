@@ -18,7 +18,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     @SubscribeMessage('join')
     async handleEvent(@ConnectedSocket() client: Socket, @MessageBody() addUser: AddUserDto) {
        try {
-        const room = await this.prismaService.room.findMany({
+        const room = await this.prismaService.private.findMany({
             where: {
                 id: addUser.roomId
             },
@@ -31,7 +31,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             }
         })
 
-        const getRoomName = await this.prismaService.room.findUnique({
+        const getRoomName = await this.prismaService.private.findUnique({
             where: {
                 id:addUser.roomId
             }
