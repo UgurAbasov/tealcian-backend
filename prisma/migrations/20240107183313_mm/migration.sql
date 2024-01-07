@@ -56,6 +56,7 @@ CREATE TABLE "Message" (
     "roomId" INTEGER,
     "privateId" INTEGER,
     "body" TEXT NOT NULL,
+    "userId" INTEGER,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -95,3 +96,6 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_roomId_fkey" FOREIGN KEY ("roomId"
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_privateId_fkey" FOREIGN KEY ("privateId") REFERENCES "Private"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Message" ADD CONSTRAINT "Message_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

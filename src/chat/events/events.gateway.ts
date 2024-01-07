@@ -26,12 +26,14 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             include: {
                 message: {
                     select: {
-                        body: true
+                        body: true,
+                        createdAt: true,
+                        userId: true
                     }
                 }
             }
         })
-        
+
             client.join(addUser.roomId.toString())
             client.emit('join', room)
     } catch(e){
