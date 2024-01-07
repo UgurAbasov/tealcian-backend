@@ -7,7 +7,7 @@ import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] } })
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
 
     @WebSocketServer()
