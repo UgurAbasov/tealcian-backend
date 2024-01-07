@@ -19,7 +19,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     @SubscribeMessage('join')
     async handleEvent(@ConnectedSocket() client: Socket, @MessageBody() addUser: AddUserDto) {
        try {
-        console.log(addUser.roomId)
         const room = await this.prismaService.private.findUnique({
             where: {
                 uniqueId: addUser.roomId
@@ -35,6 +34,12 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             }
         })
 
+        const getRequestUser = await this.prismaService.user.findUnique({
+            where: {
+                refreshToken: addUser.refreshToken
+            }
+        })
+
         const arr = []
         for(let i = 0; i < room.message.length; i++){
             const getUser = await this.prismaService.user.findUnique({
@@ -45,10 +50,11 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             arr.push({
                 body: room.message[i].body,
                 time: room.message[i].createdAt,
-                userName: getUser.name
+                userName: getUser.name,
+                own: getUser.id === getRequestUser.id ? 0 : 1
             })
         }
-        console.log(groupMessagesByDate(arr))
+
             client.join(addUser.roomId.toString())
             client.emit('join', groupMessagesByDate(arr))
     } catch(e){
