@@ -20,7 +20,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
        try {
         const room = await this.prismaService.room.findMany({
             where: {
-                name: addUser.roomName
+                id: addUser.roomId
             },
             include: {
                 message: {
@@ -30,7 +30,13 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 }
             }
         })
-            client.join(addUser.roomName)
+
+        const getRoomName = await this.prismaService.room.findUnique({
+            where: {
+                id:addUser.roomId
+            }
+        })
+            client.join(getRoomName.name)
             const mapping = room[0].message.map((el) =>  client.emit('join',el))
     } catch(e){
         client.emit('join', { error: e })
@@ -42,7 +48,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         try {
         if (getUser.targetType === 'private') {
             const privateId = Number(getUser.targetId)
-
             const user = await this.prismaService.user.findUnique({
                 where: {
                     email: getUser.userEmail

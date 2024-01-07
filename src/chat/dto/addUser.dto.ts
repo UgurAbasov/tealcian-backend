@@ -1,3 +1,3 @@
 export interface AddUserDto {
-    roomName: string
+    roomId: number
 }
