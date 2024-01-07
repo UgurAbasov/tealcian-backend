@@ -55,7 +55,8 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 data: {
                     privateId,
                     roomId: null,
-                    body: getUser.message
+                    body: getUser.message,
+                    userId: user.id
                 }
             })
             const privated = await this.prismaService.private.findUnique({
@@ -66,18 +67,20 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             this.server.to(privated.name).emit('addMessage', { text: `${getUser.message}`, user: user.name });
         } else {
             const roomId = Number(getUser.targetId)
-            const message = await this.prismaService.message.create({
-                data: {
-                    roomId,
-                    privateId: null,
-                    body: getUser.message
-                }
-            })
             const user = await this.prismaService.user.findUnique({
                 where: {
                     email: getUser.userEmail
                 }
             })
+            const message = await this.prismaService.message.create({
+                data: {
+                    roomId,
+                    privateId: null,
+                    body: getUser.message,
+                    userId: user.id
+                }
+            })
+
             const room = await this.prismaService.room.findUnique({
                 where: {
                     id: roomId
