@@ -40,7 +40,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             client.join(getRoomName.name)
             client.emit('join', room)
     } catch(e){
-        client.emit('join', { error: e })
+        client.emit('join', { error: e.message })
     }
     }
 
