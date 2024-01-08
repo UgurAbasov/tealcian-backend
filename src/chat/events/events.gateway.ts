@@ -15,6 +15,15 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     server: Server
 
     constructor(private prismaService: PrismaService) { }
+    @SubscribeMessage('join')
+    async joining(@ConnectedSocket() client: Socket, @MessageBody() privateId: number){
+        try{
+            client.join(privateId.toString())
+        } catch(e){
+            client.emit('join', {error: e})
+            console.log(e)
+        }
+    }
     @SubscribeMessage('addMessage')
     async handleMessega(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto) {
         try {
@@ -42,7 +51,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 }
             })
             console.log(message)
-            client.join(privateId.toString())
             client.to(privateId.toString()).emit('receiveMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()})
             console.log("------------")
         } else {
