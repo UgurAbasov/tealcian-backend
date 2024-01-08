@@ -8,6 +8,7 @@ import { HttpStatus } from '@nestjs/common';
 import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
+import groupMessagesByDate from 'src/utils/separateTime';
 
 @Injectable()
 export class ChatService {
@@ -163,6 +164,49 @@ export class ChatService {
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
           }
+    }
+
+    async getMessages(roomId: number, refreshToken: string){
+        try {
+            const room = await this.prismaService.private.findUnique({
+                where: {
+                    uniqueId: roomId
+                },
+                include: {
+                    message: {
+                        select: {
+                            body: true,
+                            createdAt: true,
+                            userId: true
+                        }
+                    }
+                }
+            })
+    
+            const getRequestUser = await this.prismaService.user.findUnique({
+                where: {
+                    refreshToken
+                }
+            })
+    
+            const arr = []
+            for(let i = 0; i < room.message.length; i++){
+                const getUser = await this.prismaService.user.findUnique({
+                    where: {
+                        id: room.message[i].userId
+                    }
+                })
+                arr.push({
+                    body: room.message[i].body,
+                    time: room.message[i].createdAt,
+                    userName: getUser.name,
+                    own: getUser.id === getRequestUser.id ? 0 : 1
+                })
+            }
+                return groupMessagesByDate(arr)
+        } catch(e){
+           return e
+        }
     }
 }
 

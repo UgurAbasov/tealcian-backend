@@ -21,4 +21,9 @@ export class ChatController {
     getUserPrivates(@Body() refreshToken: any){
         return this.chatService.getUserPrivates(refreshToken)
     }
+
+    @Post('getMessages')
+    getMessages(@Body() roomId: number, refreshToken: string){
+        return this.chatService.getMessages(roomId,refreshToken)
+    }
 }
