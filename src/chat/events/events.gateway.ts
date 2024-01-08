@@ -19,17 +19,20 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     async handleMessega(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto) {
         try {
         if (getUser.targetType === 'private') {
-            const privateId = Number(getUser.targetId)
+            const privateId = getUser.targetId
+            console.log(privateId)
             const user = await this.prismaService.user.findUnique({
                 where: {
                     refreshToken: getUser.refreshToken
                 }
             })
+            console.log(user)
             const privated = await this.prismaService.private.findUnique({
                 where: {
                     uniqueId: privateId
                 }
             })
+            console.log(privateId)
             const message = await this.prismaService.message.create({
                 data: {
                     privateId: privated.id,
@@ -38,9 +41,10 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-
+            console.log(message)
             client.join(privateId.toString())
             client.to(privateId.toString()).emit('receiveMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()})
+            console.log("------------")
         } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
