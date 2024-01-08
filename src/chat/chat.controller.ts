@@ -2,6 +2,7 @@ import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { ChatService } from './chat.service';
 import { Controller, Post, Body, Get } from '@nestjs/common';
+import { GetMessage } from './dto/getMessage';
 
 @Controller('chat')
 export class ChatController {
@@ -23,7 +24,7 @@ export class ChatController {
     }
 
     @Post('getMessages')
-    getMessages(@Body() roomId: number, refreshToken: string){
-        return this.chatService.getMessages(roomId,refreshToken)
+    getMessages(@Body() getMessage:GetMessage){
+        return this.chatService.getMessages(getMessage)
     }
 }

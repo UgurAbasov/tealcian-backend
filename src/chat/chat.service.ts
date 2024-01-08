@@ -9,6 +9,7 @@ import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
 import groupMessagesByDate from 'src/utils/separateTime';
+import { GetMessage } from './dto/getMessage';
 
 @Injectable()
 export class ChatService {
@@ -166,11 +167,11 @@ export class ChatService {
           }
     }
 
-    async getMessages(roomId: number, refreshToken: string){
+    async getMessages(getMessage:GetMessage){
         try {
             const room = await this.prismaService.private.findUnique({
                 where: {
-                    uniqueId: roomId
+                    uniqueId: getMessage.roomId
                 },
                 include: {
                     message: {
@@ -185,7 +186,7 @@ export class ChatService {
     
             const getRequestUser = await this.prismaService.user.findUnique({
                 where: {
-                    refreshToken
+                    refreshToken: getMessage.refreshToken
                 }
             })
     
