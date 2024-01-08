@@ -27,4 +27,9 @@ export class ChatController {
     getMessages(@Body() getMessage:GetMessage){
         return this.chatService.getMessages(getMessage)
     }
+
+    @Get('cleanData')
+    cleanData(){
+        return this.chatService.cleanData()
+    }
 }

@@ -209,5 +209,15 @@ export class ChatService {
            return e
         }
     }
+
+    async cleanData(){
+        try{
+        const deletedMessages = await this.prismaService.message.deleteMany({
+            where: {},
+          });
+        } catch(e) {
+            console.log(e)
+        }
+    }
 }
 
