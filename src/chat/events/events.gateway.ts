@@ -85,7 +85,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     uniqueId: privateId
                 }
             })
-            this.server.to(privateId.toString()).emit('addMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()});
+            // this.server.to(privateId.toString()).emit('addMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()});
             client.broadcast.emit('receiveMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()})
         } else {
             const roomId = Number(getUser.targetId)
