@@ -25,19 +25,20 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     refreshToken: getUser.refreshToken
                 }
             })
-            const message = await this.prismaService.message.create({
-                data: {
-                    privateId,
-                    roomId: null,
-                    body: getUser.message,
-                    userId: user.id
-                }
-            })
             const privated = await this.prismaService.private.findUnique({
                 where: {
                     uniqueId: privateId
                 }
             })
+            const message = await this.prismaService.message.create({
+                data: {
+                    privateId: privated.id,
+                    roomId: null,
+                    body: getUser.message,
+                    userId: user.id
+                }
+            })
+
             client.join(privateId.toString())
             client.to(privateId.toString()).emit('receiveMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()})
         } else {
