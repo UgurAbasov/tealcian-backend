@@ -140,13 +140,14 @@ export class ChatService {
             }
 
             const resultArr = [];
+            let privateId
             for (let i = 0; i < user.privates.length; i++) {
               const userPrivateRecords = await this.prismaService.userPrivate.findMany({
                 where: {
                   privateId: user.privates[i].privateId,
                 },
               });
-
+              privateId = user.privates[i].privateId
               for (let j = 0; j < userPrivateRecords.length; j++) {
                 const findUser = await this.prismaService.user.findUnique({
                   where: {
@@ -160,7 +161,8 @@ export class ChatService {
               }
             }
             return {
-                resultArr
+                resultArr,
+                privateId
             }
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
