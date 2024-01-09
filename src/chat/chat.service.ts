@@ -154,9 +154,15 @@ export class ChatService {
                     id: userPrivateRecords[j].userId,
                   },
                 });
+
+                const findPrivate = await this.prismaService.private.findUnique({
+                    where: {
+                        id: user.privates[i].privateId
+                    }
+                })
           
                 if (findUser && findUser.id !== user.id) {
-                    objectArr.push({user: findUser.name, privateId: user.privates[i].privateId});
+                    objectArr.push({user: findUser.name, privateId: findPrivate.uniqueId});
                 }
               }
             }
