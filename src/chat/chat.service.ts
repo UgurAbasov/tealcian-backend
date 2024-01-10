@@ -243,11 +243,10 @@ export class ChatService {
                     where: {
                         id: user.privates[i].privateId
                     },
-                    include: {
+                    select: {
                         message: true
                     }
                 })
-                console.log(findPrivate)
 
                 usersPrivates.push(findPrivate[findPrivate.length - 1])
               }
