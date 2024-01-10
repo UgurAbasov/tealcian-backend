@@ -248,7 +248,7 @@ export class ChatService {
                     }
                 })
 
-                usersPrivates.push(findPrivate[findPrivate.length - 1])
+                usersPrivates.push(findPrivate)
               }
               return usersPrivates
         } catch(e){
