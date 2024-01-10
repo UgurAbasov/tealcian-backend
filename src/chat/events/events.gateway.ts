@@ -1,3 +1,4 @@
+import { SendNotification } from './../dto/sendNotification';
 import { GetUserDto } from '../dto/getUser.dto';
 import { AddUserDto } from './../dto/addUser.dto';
 import { OnModuleInit } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
+import { GetMessage } from '../dto/getMessage';
 
 
 @WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] } })
@@ -80,7 +82,32 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         client.emit('addMessage', {error: e})
         console.log(e)
     }
+
 }
+
+@SubscribeMessage('sendNotification')
+  async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() sendNotification:SendNotification){
+    try {
+    const user = await this.prismaService.user.findUnique({
+        where: {
+            refreshToken: sendNotification.refreshToken
+        }
+    })
+    if(!user){
+        throw new Error('Something went wrong')
+    }
+
+    const Private = await this.prismaService.private.findUnique({
+        where: {
+            uniqueId: sendNotification.roomId
+        }
+    })
+
+    client.to(sendNotification.roomId.toString()).emit('sendNotification', { roomId: sendNotification.roomId})
+} catch (e){
+    return e
+}
+  }
 
     handleConnection(client: any, ...args: any[]) {
         console.log(client.id)
