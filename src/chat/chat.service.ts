@@ -228,40 +228,28 @@ export class ChatService {
     }
     async getLastMessages(getMessage:GetMessage){
         try {
-            const room = await this.prismaService.private.findUnique({
+            const user = await this.prismaService.user.findUnique({
                 where: {
-                    uniqueId: getMessage.roomId
+                  refreshToken: getMessage.refreshToken,
                 },
                 include: {
-                    message: {
-                        select: {
-                            body: true,
-                            createdAt: true,
-                            userId: true
-                        }
-                    }
-                }
-            })
-    
-            const getRequestUser = await this.prismaService.user.findUnique({
-                where: {
-                    refreshToken: getMessage.refreshToken
-                }
-            })
-    
-            const arr = []
-            for(let i = 0; i < room.message.length; i++){
-                const getUser = await this.prismaService.user.findUnique({
+                  privates: true,
+                },
+              });
+              const usersPrivates = []
+              for(let i = 0; i < user.privates.length; i++){
+                const findPrivate = await this.prismaService.private.findMany({
                     where: {
-                        id: room.message[i].userId
+                        id: user.privates[i].privateId
+                    },
+                    include: {
+                        message: true
                     }
                 })
-                const latestMassage = room.message[room.message.length - 1]
-                arr.push({
-                    body: latestMassage
-                })
-            }
-                return arr
+
+                usersPrivates.push(findPrivate[findPrivate.length - 1])
+              }
+              return usersPrivates
         } catch(e){
            return e
         }
