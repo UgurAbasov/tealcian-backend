@@ -226,5 +226,45 @@ export class ChatService {
             console.log(e)
         }
     }
+    async getLastMessages(getMessage:GetMessage){
+        try {
+            const room = await this.prismaService.private.findUnique({
+                where: {
+                    uniqueId: getMessage.roomId
+                },
+                include: {
+                    message: {
+                        select: {
+                            body: true,
+                            createdAt: true,
+                            userId: true
+                        }
+                    }
+                }
+            })
+    
+            const getRequestUser = await this.prismaService.user.findUnique({
+                where: {
+                    refreshToken: getMessage.refreshToken
+                }
+            })
+    
+            const arr = []
+            for(let i = 0; i < room.message.length; i++){
+                const getUser = await this.prismaService.user.findUnique({
+                    where: {
+                        id: room.message[i].userId
+                    }
+                })
+                const latestMassage = room.message[room.message.length - 1]
+                arr.push({
+                    body: latestMassage
+                })
+            }
+                return arr
+        } catch(e){
+           return e
+        }
+    }
 }
 

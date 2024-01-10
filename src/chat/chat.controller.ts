@@ -32,4 +32,9 @@ export class ChatController {
     cleanData(){
         return this.chatService.cleanData()
     }
+    @Post('getLastMessages')
+    getLastMessages(@Body() getMessage:GetMessage){
+        return this.chatService.getLastMessages(getMessage)
+    }
+
 }
