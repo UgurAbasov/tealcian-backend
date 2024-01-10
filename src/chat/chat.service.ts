@@ -249,7 +249,10 @@ export class ChatService {
                 })
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
-                    usersPrivates.push(lastMassage[lastMassage.length - 1])
+                    let sample = {
+                        body: lastMassage[lastMassage.length - 1].body
+                    }
+                    usersPrivates.push(sample.body)
                 }
               }
               return usersPrivates
