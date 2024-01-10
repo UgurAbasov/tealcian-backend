@@ -247,7 +247,7 @@ export class ChatService {
                         message: true
                     }
                 })
-                usersPrivates.push(findPrivate)
+
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
                     if(lastMassage[lastMassage.length - 1] !== null){
