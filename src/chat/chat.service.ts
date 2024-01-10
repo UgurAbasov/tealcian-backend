@@ -213,7 +213,7 @@ export class ChatService {
             }
                 return groupMessagesByDate(arr)
         } catch(e){
-           return e
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -226,6 +226,7 @@ export class ChatService {
             console.log(e)
         }
     }
+
     async getLastMessages(getMessage:GetMessage){
         try {
             const user = await this.prismaService.user.findUnique({
@@ -236,11 +237,7 @@ export class ChatService {
                   privates: true,
                 },
               });
-              console.log(user.privates)
             //   const usersPrivates = []
-              const test = []
-              const test1 = []
-              const test2 = []
               for(let i = 0; i < user.privates.length; i++){
                 const findPrivate = await this.prismaService.private.findMany({
                     where: {
@@ -250,22 +247,21 @@ export class ChatService {
                         message: true
                     }
                 })
-                console.log(findPrivate)
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
-                    test.push(lastMassage)
-                    test1.push(lastMassage[lastMassage.length - 1])
-                    test2.push(lastMassage[lastMassage.length - 1].body)
+                    console.log(lastMassage)
+                    console.log(lastMassage[lastMassage.length - 1])
+                    console.log(lastMassage[lastMassage.length - 1].body)
                     // usersPrivates.push(lastMassage[lastMassage.length - 1])
                 }
               }
               return {
-                one: test,
-                two: test1,
-                three: test2
+                one: 'test',
+                two: 'test1',
+                three: 'test2'
               }
         } catch(e){
-           return e
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
