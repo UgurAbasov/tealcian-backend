@@ -236,6 +236,7 @@ export class ChatService {
                   privates: true,
                 },
               });
+              console.log(user.privates)
               const usersPrivates = []
               for(let i = 0; i < user.privates.length; i++){
                 const findPrivate = await this.prismaService.private.findMany({
@@ -246,6 +247,7 @@ export class ChatService {
                         message: true
                     }
                 })
+                console.log(findPrivate)
 
                 usersPrivates.push(findPrivate[findPrivate.length - 1])
               }
