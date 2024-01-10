@@ -237,7 +237,10 @@ export class ChatService {
                 },
               });
               console.log(user.privates)
-              const usersPrivates = []
+            //   const usersPrivates = []
+              const test = []
+              const test1 = []
+              const test2 = []
               for(let i = 0; i < user.privates.length; i++){
                 const findPrivate = await this.prismaService.private.findMany({
                     where: {
@@ -249,13 +252,17 @@ export class ChatService {
                 })
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
-                 // {id,body}, null, null
-                 if(lastMassage[lastMassage.length - 1].body){
-                    usersPrivates.push(lastMassage[lastMassage.length - 1].body)
-                 }                
+                    test.push(lastMassage)
+                    test1.push(lastMassage[lastMassage.length - 1])
+                    test2.push(lastMassage[lastMassage.length - 1].body)
+                    // usersPrivates.push(lastMassage[lastMassage.length - 1])
                 }
               }
-              return usersPrivates
+              return {
+                test,
+                test1,
+                test2
+              }
         } catch(e){
            return e
         }
