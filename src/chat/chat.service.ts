@@ -247,9 +247,12 @@ export class ChatService {
                         message: true
                     }
                 })
-
-                usersPrivates.push(findPrivate)
+                for(let j = 0; j < findPrivate.length;j++){
+                    const lastMassage = findPrivate[j].message
+                    usersPrivates.push(lastMassage[lastMassage.length - 1])
+                }
               }
+
               return usersPrivates
         } catch(e){
            return e
