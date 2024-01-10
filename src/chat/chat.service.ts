@@ -237,7 +237,7 @@ export class ChatService {
                   privates: true,
                 },
               });
-            //   const usersPrivates = []
+              const usersPrivates = []
               for(let i = 0; i < user.privates.length; i++){
                 const findPrivate = await this.prismaService.private.findMany({
                     where: {
@@ -249,17 +249,10 @@ export class ChatService {
                 })
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
-                    console.log(lastMassage)
-                    console.log(lastMassage[lastMassage.length - 1])
-                    console.log(lastMassage[lastMassage.length - 1].body)
-                    // usersPrivates.push(lastMassage[lastMassage.length - 1])
+                    usersPrivates.push(lastMassage[lastMassage.length - 1])
                 }
               }
-              return {
-                one: 'test',
-                two: 'test1',
-                three: 'test2'
-              }
+              return usersPrivates
         } catch(e){
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
