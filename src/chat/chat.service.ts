@@ -250,6 +250,7 @@ export class ChatService {
                         message: true
                     }
                 })
+                console.log(findPrivate)
                 for(let j = 0; j < findPrivate.length;j++){
                     const lastMassage = findPrivate[j].message
                     test.push(lastMassage)
@@ -259,9 +260,9 @@ export class ChatService {
                 }
               }
               return {
-                test,
-                test1,
-                test2
+                one: test,
+                two: test1,
+                three: test2
               }
         } catch(e){
            return e
