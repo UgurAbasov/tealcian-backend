@@ -96,9 +96,14 @@ async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUs
 }
 
 @SubscribeMessage('sendNotification')
-async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
+async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: SendNotification){
     try {
-        client.to(getUser.targetId.toString()).emit('sendNotification', { data: true })
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                refreshToken: getUser.refreshToken
+            }
+        })
+        client.to(getUser.roomId.toString()).emit('sendNotification', { message: getUser.message, userId: user.id})
 } catch (e) {
 
     }
