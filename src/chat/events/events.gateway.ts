@@ -103,6 +103,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         }
     })
 
+    client.join()
     client.to(sendNotification.roomId.toString()).emit('sendNotification', { roomId: sendNotification.roomId})
 } catch (e){
     return e
