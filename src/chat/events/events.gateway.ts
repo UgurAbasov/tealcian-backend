@@ -11,7 +11,7 @@ import { GetMessage } from '../dto/getMessage';
 
 
 
-@WebSocketGateway({ cors: { origin: '', methods: ['GET', 'POST'] }})
+@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }})
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
