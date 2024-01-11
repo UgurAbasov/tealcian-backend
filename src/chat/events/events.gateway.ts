@@ -18,13 +18,14 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
     constructor(private prismaService: PrismaService) { }
     @SubscribeMessage('join')
-    async joining(@ConnectedSocket() client: Socket, @MessageBody() privateId: any){
+    async joining(@ConnectedSocket() client: Socket, @MessageBody() data: any){
         try{
-            client.join(privateId.toString())
+            client.join(data.privateId.toString())
         } catch(e){
             client.emit('join', {error: e})
             console.log(e)
         }
+
     }
     @SubscribeMessage('addMessage')
     async handleMessega(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto) {
@@ -85,56 +86,24 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
 }
 
-@SubscribeMessage('sendData')
-async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
+@SubscribeMessage('joinToAll')
+async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
     try {
-        const user = await this.prismaService.user.findUnique({
-          where: {
-            refreshToken: getUser.refreshToken,
-          },
-          include: {
-            privates: true,
-          },
-        });
-
-    if (!user) {
-        return 'not'
-    }
-
-        const objectArr = [];
-        let privateId = []
-        for (let i = 0; i < user.privates.length; i++) {
-          const userPrivateRecords = await this.prismaService.userPrivate.findMany({
-            where: {
-              privateId: user.privates[i].privateId,
-            },
-          });
-          privateId.push(user.privates[i].privateId)
-          for (let j = 0; j < userPrivateRecords.length; j++) {
-            const findUser = await this.prismaService.user.findUnique({
-              where: {
-                id: userPrivateRecords[j].userId,
-              },
-            });
-
-            const findPrivate = await this.prismaService.private.findUnique({
-                where: {
-                    id: user.privates[i].privateId
-                }
-            })
-      
-            if (findUser && findUser.id !== user.id) {
-                objectArr.push({user: findUser.name, privateId: findPrivate.uniqueId});
-            }
-          }
-        }
-        return {
-            objectArr
-        }
-      } catch (e) {
-        console.log(e)
+        client.join(getUser.targetId.toString())
+} catch (e) {
+    return e
     }
 }
+
+@SubscribeMessage('sendNotification')
+async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
+    try {
+        client.to(getUser.targetId.toString()).emit('sendNotification', { data: true })
+} catch (e) {
+
+    }
+}
+
     handleConnection(client: any, ...args: any[]) {
         console.log(client.id)
     }
