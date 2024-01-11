@@ -10,9 +10,10 @@ import groupMessagesByDate from 'src/utils/separateTime';
 import { GetMessage } from '../dto/getMessage';
 
 
-@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] } })
-export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
 
+// { cors: { origin: '', methods: ['GET', 'POST'] } }
+@WebSocketGateway()
+export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
 
@@ -84,7 +85,13 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     }
 
 }
+    handleConnection(client: any, ...args: any[]) {
+        console.log(client.id)
+    }
 
+    handleDisconnect(client: any) {
+
+    }
 
     onModuleInit() {
 
