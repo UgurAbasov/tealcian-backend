@@ -85,6 +85,57 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     }
 
 }
+
+@SubscribeMessage('sendData')
+async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
+    try {
+        const user = await this.prismaService.user.findUnique({
+          where: {
+            refreshToken: getUser.refreshToken,
+          },
+          include: {
+            privates: true,
+          },
+        });
+
+    if (!user) {
+        return 'not'
+    }
+
+        const objectArr = [];
+        let privateId = []
+        for (let i = 0; i < user.privates.length; i++) {
+          const userPrivateRecords = await this.prismaService.userPrivate.findMany({
+            where: {
+              privateId: user.privates[i].privateId,
+            },
+          });
+          privateId.push(user.privates[i].privateId)
+          for (let j = 0; j < userPrivateRecords.length; j++) {
+            const findUser = await this.prismaService.user.findUnique({
+              where: {
+                id: userPrivateRecords[j].userId,
+              },
+            });
+
+            const findPrivate = await this.prismaService.private.findUnique({
+                where: {
+                    id: user.privates[i].privateId
+                }
+            })
+      
+            if (findUser && findUser.id !== user.id) {
+                objectArr.push({user: findUser.name, privateId: findPrivate.uniqueId});
+            }
+          }
+        }
+        return {
+            objectArr
+        }
+      } catch (e) {
+        console.log(e)
+    }
+}
     handleConnection(client: any, ...args: any[]) {
         console.log(client.id)
     }
