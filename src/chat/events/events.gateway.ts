@@ -11,8 +11,7 @@ import { GetMessage } from '../dto/getMessage';
 
 
 
-// { cors: { origin: '', methods: ['GET', 'POST'] } }
-@WebSocketGateway()
+@WebSocketGateway({ cors: { origin: '', methods: ['GET', 'POST'] }})
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
