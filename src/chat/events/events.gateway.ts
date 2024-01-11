@@ -85,38 +85,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 
 }
 
-@SubscribeMessage('sendNotification')
-  async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() sendNotification:SendNotification){
-    try {
-    const user = await this.prismaService.user.findUnique({
-        where: {
-            refreshToken: sendNotification.refreshToken
-        }
-    })
-    if(!user){
-        throw new Error('Something went wrong')
-    }
-
-    const Private = await this.prismaService.private.findUnique({
-        where: {
-            uniqueId: sendNotification.roomId
-        }
-    })
-
-    client.join()
-    client.to(sendNotification.roomId.toString()).emit('sendNotification', { roomId: sendNotification.roomId})
-} catch (e){
-    return e
-}
-  }
-
-    handleConnection(client: any, ...args: any[]) {
-        console.log(client.id)
-    }
-
-    handleDisconnect(client: any) {
-
-    }
 
     onModuleInit() {
 
