@@ -103,7 +103,7 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
                 refreshToken: getUser.refreshToken
             }
         })
-        client.to(getUser.roomId.toString()).emit('sendNotification', { message: getUser.message, userId: user.id})
+        client.to(getUser.roomId.toString()).emit('sendNotification', { message: getUser.message, userId: user.id, privateId: getUser.roomId })
 } catch (e) {
 
     }
