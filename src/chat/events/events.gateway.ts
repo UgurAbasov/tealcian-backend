@@ -138,7 +138,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
         })
         client.to(message.privateId.toString()).emit('deleteMessage', getAllMessage)
     } catch(e) {
-        return e.message
+        console.log(e)
     }
 }
 
