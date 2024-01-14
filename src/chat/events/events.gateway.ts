@@ -123,6 +123,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
         if(!getMessage){
             return 'error'
         }
+        console.log(getMessage)
         const deleteMessage = await this.prismaService.message.delete({
             where: {
                 id: getMessage[0].id
