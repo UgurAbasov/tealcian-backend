@@ -141,7 +141,23 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 message: true
             }
         })
-        client.to(message.privateId.toString()).emit('deleteMessage', getAllMessage)
+
+        const arr = []
+        for(let i = 0; i < getAllMessage[0].message.length; i++){
+            const getUser = await this.prismaService.user.findUnique({
+                where: {
+                    id: getAllMessage[0].message[i].userId
+                }
+            })
+            arr.push({
+                body: getAllMessage[0].message[i].body,
+                time: getAllMessage[0].message[i].createdAt,
+                userName: getUser.name,
+                own: getUser.id === message.userId ? 0 : 1
+            })
+        }
+
+        client.to(message.privateId.toString()).emit('deleteMessage', groupMessagesByDate(arr))
     } catch(e) {
         console.log(e)
     }
