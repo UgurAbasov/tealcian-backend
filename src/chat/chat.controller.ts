@@ -2,7 +2,7 @@ import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { ChatService } from './chat.service';
 import { Controller, Post, Body, Get } from '@nestjs/common';
-import { GetMessage } from './dto/getMessage';
+import { GetMessage } from './dto/getMessage.dto';
 
 @Controller('chat')
 export class ChatController {

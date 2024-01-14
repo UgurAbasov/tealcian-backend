@@ -9,7 +9,7 @@ import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
 import groupMessagesByDate from 'src/utils/separateTime';
-import { GetMessage } from './dto/getMessage';
+import { GetMessage } from './dto/getMessage.dto';
 
 @Injectable()
 export class ChatService {
@@ -212,7 +212,7 @@ export class ChatService {
                 })
             }
                 return groupMessagesByDate(arr)
-        } catch(e){
+        } catch(e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

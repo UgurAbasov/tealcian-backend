@@ -1,4 +1,5 @@
-import { SendNotification } from './../dto/sendNotification';
+import { DeleteMessage } from './../dto/deleteMessage.dto';
+import { SendNotification } from '../dto/sendNotification.dto';
 import { GetUserDto } from '../dto/getUser.dto';
 import { AddUserDto } from './../dto/addUser.dto';
 import { OnModuleInit } from '@nestjs/common';
@@ -7,7 +8,7 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
-import { GetMessage } from '../dto/getMessage';
+import { GetMessage } from '../dto/getMessage.dto';
 
 
 
@@ -83,7 +84,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         client.emit('addMessage', {error: e})
         console.log(e)
     }
-
 }
 
 @SubscribeMessage('joinToAll')
@@ -106,6 +106,30 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
         client.to(getUser.roomId.toString()).emit('sendNotification', { message: getUser.message, userId: user.id, privateId: getUser.roomId })
 } catch (e) {
 
+    }
+}
+
+@SubscribeMessage('deleteMessage')
+async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: DeleteMessage){
+    try {
+        const getMessage = await this.prismaService.message.findMany({
+            where: {
+                body: message.message,
+                createdAt: message.time,
+                privateId: message.privateId,
+                userId: message.userId
+            }
+        })
+        if(!getMessage){
+            return 'error'
+        }
+        const deleteMessage = await this.prismaService.message.delete({
+            where: {
+                id: getMessage[0].id
+            }
+        })
+    } catch(e) {
+        return e.message
     }
 }
 
