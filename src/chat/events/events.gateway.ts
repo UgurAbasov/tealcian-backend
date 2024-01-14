@@ -112,18 +112,22 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
 @SubscribeMessage('deleteMessage')
 async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: DeleteMessage){
     try {
+        const getPrivate = await this.prismaService.private.findUnique({
+            where: {
+                uniqueId: message.privateId
+            }
+        })
         const getMessage = await this.prismaService.message.findMany({
             where: {
                 body: message.message,
                 createdAt: message.time,
-                privateId: message.privateId,
+                privateId: getPrivate.id,
                 userId: message.userId
             }
         })
         if(!getMessage){
             return 'error'
         }
-        console.log(getMessage)
         const deleteMessage = await this.prismaService.message.delete({
             where: {
                 id: getMessage[0].id
