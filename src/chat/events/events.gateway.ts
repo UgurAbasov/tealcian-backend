@@ -128,6 +128,15 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 id: getMessage[0].id
             }
         })
+        const getAllMessage = await this.prismaService.private.findMany({
+            where: {
+                uniqueId: message.privateId
+            },
+            include: {
+                message: true
+            }
+        })
+        client.to(message.privateId.toString()).emit('sendNotification', getAllMessage)
     } catch(e) {
         return e.message
     }
