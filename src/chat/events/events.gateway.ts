@@ -54,7 +54,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             client.nsp.to(client.id).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
-                own: 0,
+                own: 1,
                 time: message.createdAt,
             })
             client.to(privateId.toString()).emit('receiveMessage', {
