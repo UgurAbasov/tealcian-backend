@@ -21,6 +21,8 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     async joining(@ConnectedSocket() client: Socket, @MessageBody() data: any){
         try{
             client.join(data.privateId.toString())
+            client.join(client.id)
+            console.log(client.id)
         } catch(e){
             client.emit('join', {error: e})
             console.log(e)
@@ -37,13 +39,11 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     refreshToken: getUser.refreshToken
                 }
             })
-            console.log(user)
             const privated = await this.prismaService.private.findUnique({
                 where: {
                     uniqueId: privateId
                 }
             })
-            console.log(privateId)
             const message = await this.prismaService.message.create({
                 data: {
                     privateId: privated.id,
