@@ -53,12 +53,18 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            client.broadcast.to(privateId.toString()).emit('receiveMessage', {
+            client.to(privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
                 time: message.createdAt,
-              }) 
+              })
+              client.to(client.id).emit('receiveMessage', {
+                body: `${getUser.message}`,
+                user: user.name,
+                own: 0,
+                time: message.createdAt,
+              })  
                    } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
