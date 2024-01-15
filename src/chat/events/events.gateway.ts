@@ -52,14 +52,15 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            client.broadcast.to(client.id).emit('receiveMessage', {
+            console.log('Sending message to client with ID:', client.id);
+            client.to(client.id).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
                 time: message.createdAt,
             })
             console.log('Sending message to private room:', message.privateId.toString());
-            client.broadcast.to(message.privateId.toString()).emit('receiveMessage', {
+            client.to(message.privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
