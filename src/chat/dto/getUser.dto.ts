@@ -3,4 +3,5 @@ export interface GetUserDto {
     refreshToken: string
     message: string
     targetType: string
+    userId: number
 }

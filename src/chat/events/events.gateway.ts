@@ -98,7 +98,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
     try {
         client.join(getUser.targetId.toString())
-        client.join(client.id)
+        client.join(getUser.userId.toString())
 } catch (e) {
     return e
     }
