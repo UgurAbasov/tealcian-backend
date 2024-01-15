@@ -53,8 +53,11 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 }
             })
             const arrayOfIds = [client.id, message.privateId.toString()]
-            client.broadcast.to(arrayOfIds).emit('eventName', {
-                data: "somedata"
+            client.broadcast.to(arrayOfIds).emit('receiveMessage', {
+                body: `${getUser.message}`,
+                user: user.name,
+                own: 0,
+                time: message.createdAt,
             });
                    } else {
             const roomId = Number(getUser.targetId)
