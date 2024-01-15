@@ -51,7 +51,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            console.log('Sending message to client with ID:', client.id);
+            console.log('Sending message to client with ID:', user.id);
             client.to(user.id.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
