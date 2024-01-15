@@ -8,7 +8,6 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
-import { GetMessage } from '../dto/getMessage.dto';
 
 
 
@@ -22,7 +21,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     async joining(@ConnectedSocket() client: Socket, @MessageBody() data: any){
         try{
             client.join(data.privateId.toString())
-            client.join(client.id)
         } catch(e){
             client.emit('join', {error: e})
             console.log(e)
@@ -54,18 +52,12 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            client.to(privateId.toString()).emit('receiveMessage', {
+            client.in(privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
                 time: message.createdAt,
               })
-              client.to(client.id).emit('receiveMessage', {
-                body: `${getUser.message}`,
-                user: user.name,
-                own: 0,
-                time: message.createdAt,
-              })  
                    } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
