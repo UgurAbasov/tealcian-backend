@@ -51,8 +51,8 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            console.log('Sending message to client with ID:', user.id);
-            client.to(user.id.toString()).emit('receiveForUser', {
+            console.log('Sending message to client with ID:', client.id);
+            client.nsp.to(client.id).emit('receiveForUser', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
@@ -98,7 +98,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
 async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
     try {
         client.join(getUser.targetId.toString())
-        client.join(getUser.userId.toString())
+        client.join(client.id)
 } catch (e) {
     return e
     }
