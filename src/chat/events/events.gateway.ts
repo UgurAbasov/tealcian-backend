@@ -58,6 +58,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 own: 0,
                 time: message.createdAt,
             })
+            console.log('Sending message to private room:', message.privateId.toString());
             client.broadcast.to(message.privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
