@@ -33,7 +33,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
         try {
         if (getUser.targetType === 'private') {
             const privateId = getUser.targetId
-            console.log(privateId)
             const user = await this.prismaService.user.findUnique({
                 where: {
                     refreshToken: getUser.refreshToken
@@ -54,9 +53,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            console.log(message)
             client.to(privateId.toString()).emit('receiveMessage', { body: `${getUser.message}`, user: user.name, own: 0, time: new Date()})
-            console.log("------------")
         } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
@@ -112,11 +109,13 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
 @SubscribeMessage('deleteMessage')
 async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: DeleteMessage){
     try {
+        console.log(message, 4)
         const getPrivate = await this.prismaService.private.findUnique({
             where: {
                 uniqueId: message.privateId
             }
         })
+        console.log(getPrivate, 1)
         const getMessage = await this.prismaService.message.findMany({
             where: {
                 body: message.message,
@@ -128,6 +127,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
         if(!getMessage){
             return 'error'
         }
+        console.log(getMessage,2)
         const deleteMessage = await this.prismaService.message.delete({
             where: {
                 id: getMessage[0].id
@@ -156,7 +156,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id === message.userId ? 0 : 1
             })
         }
-
+        console.log(arr, 3)
         client.to(message.privateId.toString()).emit('deleteMessage', groupMessagesByDate(arr))
     } catch(e) {
         console.log(e)
