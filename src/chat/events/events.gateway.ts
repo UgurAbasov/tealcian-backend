@@ -166,7 +166,8 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id === message.userId ? 0 : 1
             })
         }
-        client.nsp.to(message.privateId.toString()).emit('deleteMessage', groupMessagesByDate(arr))
+        client.nsp.to(client.id).emit('deleteMessage', groupMessagesByDate(arr))
+        client.to(message.privateId.toString()).emit('deleteMessage', groupMessagesByDate(arr))
     } catch(e) {
         console.log(e)
     }
