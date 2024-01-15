@@ -21,7 +21,6 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
     async joining(@ConnectedSocket() client: Socket, @MessageBody() data: any){
         try{
             client.join(data.privateId.toString())
-            client.join(client.id)
         } catch(e){
             client.emit('join', {error: e})
             console.log(e)
