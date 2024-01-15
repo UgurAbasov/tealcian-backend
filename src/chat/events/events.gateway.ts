@@ -122,6 +122,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 body: message.message,
                 createdAt: message.time,
                 privateId: getPrivate.id,
+                userId: message.userId
             }
         })
         if(!getMessage){
