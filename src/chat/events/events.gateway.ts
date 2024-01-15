@@ -51,14 +51,12 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            console.log('Sending message to client with ID:', client.id);
-            client.nsp.to(client.id).emit('receiveForUser', {
+            client.nsp.to(client.id).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: 0,
                 time: message.createdAt,
             })
-            console.log('Sending message to private room:', privateId.toString());
             client.to(privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
