@@ -54,13 +54,13 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
             client.nsp.to(client.id).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
-                own: 1,
+                userId: user.id,
                 time: message.createdAt,
             })
             client.to(privateId.toString()).emit('receiveMessage', {
                 body: `${getUser.message}`,
                 user: user.name,
-                own: 0,
+                userId: user.id,
                 time: message.createdAt,
             })
                    } else {
@@ -162,7 +162,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 body: getAllMessage[0].message[i].body,
                 time: getAllMessage[0].message[i].createdAt,
                 userName: getUser.name,
-                own: getUser.id === message.userId ? 0 : 1
+                userId: getUser.id
             })
         }
         client.nsp.to(client.id).emit('deleteMessage', groupMessagesByDate(arr))

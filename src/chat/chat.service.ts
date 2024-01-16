@@ -208,7 +208,7 @@ export class ChatService {
                     body: room.message[i].body,
                     time: room.message[i].createdAt,
                     userName: getUser.name,
-                    own: getUser.id === getRequestUser.id ? 0 : 1
+                    own: getUser.id
                 })
             }
                 return groupMessagesByDate(arr)
