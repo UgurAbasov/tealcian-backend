@@ -173,11 +173,11 @@ export class ChatService {
                 publicKeyEncoding: { type: 'spki', format: 'pem' },
                 privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
             });
-            const serverPublicKey = serverKeyPair.publicKey
+            const serverPublicKey = serverKeyPair.publicKey;
             const encryptedBuffer = publicEncrypt(serverPublicKey, Buffer.from(originalData));
             return {
                 objectArr: encryptedBuffer.toString('base64')
-            }
+            };
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
           }
