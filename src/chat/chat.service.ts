@@ -168,7 +168,7 @@ export class ChatService {
               }
             }
             const originalData = JSON.stringify(objectArr);
-            const serverPublicKey = 'P2P';
+            const serverPublicKey = 'PPP';
             const encryptedBuffer = publicEncrypt(serverPublicKey, Buffer.from(originalData));
             return {
                 objectArr: encryptedBuffer.toString('base64'),
