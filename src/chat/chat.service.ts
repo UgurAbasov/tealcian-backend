@@ -176,7 +176,8 @@ export class ChatService {
             const serverPublicKey = serverKeyPair.publicKey;
             const encryptedBuffer = publicEncrypt(serverPublicKey, Buffer.from(originalData));
             return {
-                objectArr: encryptedBuffer.toString('base64')
+                objectArr: encryptedBuffer.toString('base64'),
+                PRP: serverPublicKey
             };
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
