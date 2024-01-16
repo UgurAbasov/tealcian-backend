@@ -168,16 +168,10 @@ export class ChatService {
               }
             }
             const originalData = JSON.stringify(objectArr);
-            const serverKeyPair = generateKeyPairSync('rsa', {
-                modulusLength: 2048,
-                publicKeyEncoding: { type: 'spki', format: 'pem' },
-                privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-            });
-            const serverPublicKey = serverKeyPair.publicKey;
+            const serverPublicKey = 'P2P';
             const encryptedBuffer = publicEncrypt(serverPublicKey, Buffer.from(originalData));
             return {
                 objectArr: encryptedBuffer.toString('base64'),
-                PRP: serverPublicKey
             };
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
