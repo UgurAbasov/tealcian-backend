@@ -10,7 +10,7 @@ import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
 import groupMessagesByDate from 'src/utils/separateTime';
 import { GetMessage } from './dto/getMessage.dto';
-import { generateKeyPairSync, publicEncrypt } from 'crypto';
+import { createHash, generateKeyPairSync, publicEncrypt } from 'crypto';
 
 @Injectable()
 export class ChatService {
@@ -168,11 +168,10 @@ export class ChatService {
               }
             }
             const originalData = JSON.stringify(objectArr);
-            const serverPublicKey = 'something';
-            const encryptedBuffer = publicEncrypt(serverPublicKey, Buffer.from(originalData));
+            const serverHash = createHash('sha256').update(originalData).digest('hex');
             return {
-                objectArr: encryptedBuffer.toString('base64'),
-            };
+                objectArr: serverHash
+            }
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
           }
