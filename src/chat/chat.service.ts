@@ -10,7 +10,7 @@ import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
 import groupMessagesByDate from 'src/utils/separateTime';
 import { GetMessage } from './dto/getMessage.dto';
-import { createCipheriv, createHash, generateKeyPairSync, publicEncrypt, randomBytes } from 'crypto';
+import { createHash, generateKeyPairSync, publicEncrypt, randomBytes, createCipheriv, createCipher } from 'crypto';
 
 @Injectable()
 export class ChatService {
@@ -168,14 +168,13 @@ export class ChatService {
               }
             }
             const originalData = JSON.stringify(objectArr);
-            const key = randomBytes(32);
-            const iv = randomBytes(16);
-            const cipher = createCipheriv('aes-256-cbc', key, iv);
-
-            let encryptedData = cipher.update(originalData, 'utf-8', 'hex');
-            encryptedData += cipher.final('hex');
+            const key = 'themost';
+            const algorithm = 'aes-256-cbc';
+             const cipher = createCipher(algorithm, key);
+             let encrypted = cipher.update(originalData, 'utf8', 'hex');
+            encrypted += cipher.final('hex');
             return {
-                objectArr: encryptedData
+                objectArr: encrypted
             }
           } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
