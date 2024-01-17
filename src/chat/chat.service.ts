@@ -168,9 +168,8 @@ export class ChatService {
               }
             }
             const originalData = JSON.stringify(objectArr);
-            const key = 'themost';
             const algorithm = 'aes-256-cbc';
-             const cipher = createCipher(algorithm, key);
+             const cipher = createCipher(algorithm, process.env.ENCRYPT);
              let encrypted = cipher.update(originalData, 'utf8', 'hex');
             encrypted += cipher.final('hex');
             return {
@@ -218,7 +217,12 @@ export class ChatService {
                     own: getUser.id
                 })
             }
-                return groupMessagesByDate(arr)
+            const originalData = JSON.stringify(groupMessagesByDate(arr));
+            const algorithm = 'aes-256-cbc';
+             const cipher = createCipher(algorithm, process.env.ENCRYPT);
+             let encrypted = cipher.update(originalData, 'utf8', 'hex');
+            encrypted += cipher.final('hex');
+            return encrypted
         } catch(e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -17,12 +17,12 @@ export class AuthController {
 
 
     @Post('sign')
-    sign(@Body() registerDto: RegisterDto): Promise<Tokens> {
+    sign(@Body() registerDto: RegisterDto) {
         return this.authService.sign(registerDto);
     }
 
     @Post('login')
-    login(@Body() loginDto: LoginDto): Promise<Tokens> {
+    login(@Body() loginDto: LoginDto){
         return this.authService.login(loginDto);
     }
 
