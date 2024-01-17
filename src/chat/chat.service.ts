@@ -222,7 +222,9 @@ export class ChatService {
              const cipher = createCipher(algorithm, 'themost');
              let encrypted = cipher.update(originalData, 'utf8', 'hex');
             encrypted += cipher.final('hex');
-            return encrypted
+            return {
+                objectArr: encrypted
+            }
         } catch(e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
