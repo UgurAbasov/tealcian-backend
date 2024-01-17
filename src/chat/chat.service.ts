@@ -169,7 +169,6 @@ export class ChatService {
             }
             const originalData = JSON.stringify(objectArr);
             const algorithm = 'aes-256-cbc';
-            console.log( process.env.ENCRYPT)
              const cipher = createCipher(algorithm, 'themost');
              let encrypted = cipher.update(originalData, 'utf8', 'hex');
             encrypted += cipher.final('hex');
@@ -220,7 +219,7 @@ export class ChatService {
             }
             const originalData = JSON.stringify(groupMessagesByDate(arr));
             const algorithm = 'aes-256-cbc';
-             const cipher = createCipher(algorithm, process.env.ENCRYPT);
+             const cipher = createCipher(algorithm, themost);
              let encrypted = cipher.update(originalData, 'utf8', 'hex');
             encrypted += cipher.final('hex');
             return encrypted
