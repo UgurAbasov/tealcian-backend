@@ -58,10 +58,9 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 time: message.createdAt,
             }
             const binaryData = Buffer.from(JSON.stringify(resultObj), 'utf-8');
-
             client.nsp.to(client.id).emit('receiveMessage', binaryData)
             client.to(privateId.toString()).emit('receiveMessage', binaryData)
-                   } else {
+           } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
                 where: {
@@ -108,7 +107,9 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
                 refreshToken: getUser.refreshToken
             }
         })
-        client.to(getUser.roomId.toString()).emit('sendNotification', { message: getUser.message, userId: user.id, privateId: getUser.roomId })
+        const resultObj = { message: getUser.message, userId: user.id, privateId: getUser.roomId }
+        const binaryData = Buffer.from(JSON.stringify(resultObj), 'utf-8');
+        client.to(getUser.roomId.toString()).emit('sendNotification', binaryData)
 } catch (e) {
 
     }
@@ -163,8 +164,12 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id
             })
         }
-        client.nsp.to(client.id).emit('deleteMessage', groupMessagesByDate(arr))
-        client.to(message.privateId.toString()).emit('deleteMessage', groupMessagesByDate(arr))
+        const resultObj = groupMessagesByDate(arr)
+        const array = JSON.stringify(resultObj)
+        const textEncoder = new TextEncoder();
+        const uint8Array = textEncoder.encode(array);
+        client.nsp.to(client.id).emit('deleteMessage', uint8Array)
+        client.to(message.privateId.toString()).emit('deleteMessage', uint8Array)
     } catch(e) {
         console.log(e)
     }
