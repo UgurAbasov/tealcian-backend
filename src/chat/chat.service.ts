@@ -219,7 +219,7 @@ export class ChatService {
             }
             const originalData = JSON.stringify(groupMessagesByDate(arr));
             const algorithm = 'aes-256-cbc';
-             const cipher = createCipher(algorithm, themost);
+             const cipher = createCipher(algorithm, 'themost');
              let encrypted = cipher.update(originalData, 'utf8', 'hex');
             encrypted += cipher.final('hex');
             return encrypted
