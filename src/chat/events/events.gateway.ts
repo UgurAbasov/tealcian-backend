@@ -57,7 +57,9 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 own: user.id,
                 time: message.createdAt,
             }
-            const binaryData = Buffer.from(JSON.stringify(resultObj), 'utf-8').toString('base64');
+
+            const textEncoder = new TextEncoder();
+            const binaryData = textEncoder.encode(JSON.stringify(resultObj));
             client.nsp.to(client.id).emit('receiveMessage', binaryData)
             client.to(privateId.toString()).emit('receiveMessage', binaryData)
            } else {
