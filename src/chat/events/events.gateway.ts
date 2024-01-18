@@ -53,13 +53,13 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 body: `${getUser.message}`,
                 user: user.name,
                 own: user.id,
-                time: message.createdAt,
+                time: message.createdAt.toString(),
             }
             const resultObjSchema = build({
                 body: 'string',
                 user: 'string',
                 own: 'uint8',
-                time: 'int64'
+                time: 'string'
               });
               let buffer = resultObjSchema.encode(resultObj);
             client.nsp.to(client.id).emit('receiveMessage', buffer)
