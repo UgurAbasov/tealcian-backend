@@ -1,4 +1,3 @@
-import { customParser } from 'socket.io-json-parser';
 import { DeleteMessage } from './../dto/deleteMessage.dto';
 import { SendNotification } from '../dto/sendNotification.dto';
 import { GetUserDto } from '../dto/getUser.dto';
@@ -8,10 +7,9 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
+import {build} from 'schemapack'
 
-
-
-@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }, parser: customParser})
+@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }})
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
@@ -57,9 +55,15 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                 own: user.id,
                 time: message.createdAt,
             }
-            // const binaryData = Buffer.from(resultObj, 'utf-8');
-            client.nsp.to(client.id).emit('receiveMessage', JSON.stringify(resultObj))
-            client.to(privateId.toString()).emit('receiveMessage', JSON.stringify(resultObj))
+            const resultObjSchema = build({
+                body: 'string',
+                user: 'string',
+                own: 'uint8',
+                time: 'int64'
+              });
+              let buffer = resultObjSchema.encode(resultObj);
+            client.nsp.to(client.id).emit('receiveMessage', buffer)
+            client.to(privateId.toString()).emit('receiveMessage', buffer)
                    } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
