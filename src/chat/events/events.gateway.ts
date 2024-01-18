@@ -1,7 +1,7 @@
+import { customParser } from 'socket.io-json-parser';
 import { DeleteMessage } from './../dto/deleteMessage.dto';
 import { SendNotification } from '../dto/sendNotification.dto';
 import { GetUserDto } from '../dto/getUser.dto';
-import { AddUserDto } from './../dto/addUser.dto';
 import { OnModuleInit } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io'
@@ -11,7 +11,7 @@ import groupMessagesByDate from 'src/utils/separateTime';
 
 
 
-@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }})
+@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }, parser: customParser})
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
