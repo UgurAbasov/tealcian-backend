@@ -7,7 +7,7 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
-import build from 'schemapack'
+import schemapack from 'schemapack'
 
 @WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }})
 export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
@@ -49,7 +49,7 @@ export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, O
                     userId: user.id
                 }
             })
-            let resultObjSchema = build({
+            let resultObjSchema = schemapack.build({
                 body: 'string',
                 user: 'string',
                 own: 'uint8',
@@ -111,7 +111,7 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
                 refreshToken: getUser.refreshToken
             }
         })
-        let resultObjSchema = build({
+        let resultObjSchema = schemapack.build({
             message: 'string',
             userId: 'uint8',
             privateId: 'uint8',
@@ -173,7 +173,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id
             })
         }
-        const resultArrSchema = build({
+        const resultArrSchema = schemapack.build({
             arrayResult: 'array'
         })
         const resultArr = {
