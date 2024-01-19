@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
 import socketIoParser from 'socket.io-parser'
 
-@WebSocketGateway({cors: { origin: "https://tealcian-frontend.vercel.app", methods: ["GET", "POST"] }, parser: socketIoParser})
+@WebSocketGateway({cors: { origin: "https://tealcian-frontend.vercel.app", methods: ["GET", "POST"] }})
   export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
@@ -49,7 +49,7 @@ import socketIoParser from 'socket.io-parser'
                     userId: user.id
                 }
             })
-            const encoder = new socketIoParser.Encoder()
+            const encoder = new socketIoParser.Encoder
             const resultObj = {
                 body: `${getUser.message}`,
                 user: user.name,
