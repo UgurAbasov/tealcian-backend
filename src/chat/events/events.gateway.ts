@@ -7,9 +7,9 @@ import { Server, Socket } from 'socket.io'
 import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
-import {build} from 'schemapack'
-import schemaPackParser from 'schemapack'
-@WebSocketGateway({cors: { origin: "https://tealcian-frontend.vercel.app", methods: ["GET", "POST"] }, parser: schemaPackParser})
+import socketIoParser from 'socket.io-parser'
+
+@WebSocketGateway({cors: { origin: "https://tealcian-frontend.vercel.app", methods: ["GET", "POST"] }, parser: socketIoParser})
   export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
@@ -49,21 +49,21 @@ import schemaPackParser from 'schemapack'
                     userId: user.id
                 }
             })
+            const encoder = new socketIoParser.Encoder()
             const resultObj = {
                 body: `${getUser.message}`,
                 user: user.name,
                 own: user.id,
                 time: message.createdAt.toString(),
             }
-            const resultObjSchema = build({
-                body: 'string',
-                user: 'string',
-                own: 'uint8',
-                time: 'string'
-              });
-              let buffer = resultObjSchema.encode(resultObj);
-            client.nsp.to(client.id).emit('receiveMessage', buffer)
-            client.to(privateId.toString()).emit('receiveMessage', buffer)
+            const packet = {
+                nsp: '/',
+                type: socketIoParser.PacketType.BINARY_EVENT,
+                data: Buffer.from(JSON.stringify(resultObj))
+            }
+            const encodedPackets = encoder.encode(packet);
+            client.nsp.to(client.id).emit('receiveMessage', encodedPackets)
+            client.to(privateId.toString()).emit('receiveMessage', encodedPackets)
                    } else {
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
@@ -111,14 +111,9 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
                 refreshToken: getUser.refreshToken
             }
         })
-        const resultObjSchema = build({
-            message: 'string',
-            userId: 'uint8',
-            privateId: 'uint8'
-          });
+
         const resultObj = { message: getUser.message, userId: user.id, privateId: getUser.roomId }
-        let buffer = resultObjSchema.encode(resultObj);
-        client.to(getUser.roomId.toString()).emit('sendNotification', buffer)
+        client.to(getUser.roomId.toString()).emit('sendNotification', resultObj)
 } catch (e) {
 
     }
@@ -173,17 +168,11 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id
             })
         }
-        const resultObjSchema = build({
-            message: 'string',
-            userId: 'uint8',
-            privateId: 'uint8'
-          });
         const resultObj = {
             arrayResult: groupMessagesByDate(arr)
         }
-        let buffer = resultObjSchema.encode(resultObj);
-        client.nsp.to(client.id).emit('deleteMessage', buffer)
-        client.to(message.privateId.toString()).emit('deleteMessage', buffer)
+        client.nsp.to(client.id).emit('deleteMessage', resultObj)
+        client.to(message.privateId.toString()).emit('deleteMessage', resultObj)
     } catch(e) {
         console.log(e)
     }
