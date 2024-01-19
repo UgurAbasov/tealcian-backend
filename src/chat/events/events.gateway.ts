@@ -8,9 +8,13 @@ import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
 import {build} from 'schemapack'
+import schemaPackParser from 'schemapack'
 
-@WebSocketGateway({ cors: { origin: 'https://tealcian-frontend.vercel.app', methods: ['GET', 'POST'] }})
-export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
+@WebSocketGateway({
+    cors: { origin: "url", methods: ["GET", "POST"] },
+    parser: schemaPackParser,
+  })
+  export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
 
