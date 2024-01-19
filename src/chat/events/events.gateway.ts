@@ -8,12 +8,9 @@ import { OnGatewayConnection } from "@nestjs/websockets";
 import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
 import {build} from 'schemapack'
-import schemaPackParser from 'schemapack'
 
 @WebSocketGateway({
-    cors: { origin: "url", methods: ["GET", "POST"] },
-    parser: schemaPackParser,
-  })
+    cors: { origin: "url", methods: ["GET", "POST"] }})
   export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
@@ -57,13 +54,13 @@ import schemaPackParser from 'schemapack'
                 body: `${getUser.message}`,
                 user: user.name,
                 own: user.id,
-                // time: message.createdAt.toString,
+                time: message.createdAt.toString(),
             }
             const resultObjSchema = build({
                 body: 'string',
                 user: 'string',
                 own: 'uint8',
-                // time: 'string'
+                time: 'string'
               });
               let buffer = resultObjSchema.encode(resultObj);
             client.nsp.to(client.id).emit('receiveMessage', buffer)
@@ -115,9 +112,14 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
                 refreshToken: getUser.refreshToken
             }
         })
+        const resultObjSchema = build({
+            message: 'string',
+            userId: 'uint8',
+            privateId: 'uint8'
+          });
         const resultObj = { message: getUser.message, userId: user.id, privateId: getUser.roomId }
-        const binaryData = Buffer.from(JSON.stringify(resultObj), 'utf-8');
-        client.to(getUser.roomId.toString()).emit('sendNotification', binaryData)
+        let buffer = resultObjSchema.encode(resultObj);
+        client.to(getUser.roomId.toString()).emit('sendNotification', buffer)
 } catch (e) {
 
     }
@@ -172,12 +174,17 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
                 own: getUser.id
             })
         }
+        const resultObjSchema = build({
+            message: 'string',
+            userId: 'uint8',
+            privateId: 'uint8'
+          });
         const resultObj = {
             arrayResult: groupMessagesByDate(arr)
         }
-        const binaryData = Buffer.from(JSON.stringify(resultObj), 'utf-8');
-        client.nsp.to(client.id).emit('deleteMessage', binaryData)
-        client.to(message.privateId.toString()).emit('deleteMessage', binaryData)
+        let buffer = resultObjSchema.encode(resultObj);
+        client.nsp.to(client.id).emit('deleteMessage', buffer)
+        client.to(message.privateId.toString()).emit('deleteMessage', buffer)
     } catch(e) {
         console.log(e)
     }
