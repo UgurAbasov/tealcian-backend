@@ -56,7 +56,7 @@ import groupMessagesByDate from 'src/utils/separateTime';
                 time: message.createdAt.toString(),
             }
 
-              let buffer = Buffer.from(JSON.stringify(resultObj), 'base64');
+              let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
             client.nsp.to(client.id).emit('receiveMessage', buffer)
             client.to(privateId.toString()).emit('receiveMessage', buffer)
                    } else {
@@ -107,7 +107,7 @@ async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser
             }
         })
         const resultObj = { message: getUser.message, userId: user.id, privateId: getUser.roomId }
-        let buffer = Buffer.from(JSON.stringify(resultObj), 'base64');
+        let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
         client.to(getUser.roomId.toString()).emit('sendNotification', buffer)
 } catch (e) {
 
@@ -166,7 +166,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
         const resultObj = {
             arrayResult: groupMessagesByDate(arr)
         }
-        let buffer = Buffer.from(JSON.stringify(resultObj), 'base64');
+        let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
         client.nsp.to(client.id).emit('deleteMessage', buffer)
         client.to(message.privateId.toString()).emit('deleteMessage', buffer)
     } catch(e) {
