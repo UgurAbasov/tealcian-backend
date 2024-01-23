@@ -67,6 +67,6 @@ model Message {
   private Private? @relation(fields: [privateId], references: [id])
   privateId Int?
   body String
- user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
   userId Int
 }

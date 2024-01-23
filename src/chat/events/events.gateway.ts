@@ -56,7 +56,7 @@ import groupMessagesByDate from 'src/utils/separateTime';
                 time: message.createdAt.toString(),
             }
 
-              let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
+            var buffer = new TextEncoder().encode(JSON.stringify(resultObj));
             client.nsp.to(client.id).emit('receiveMessage', buffer)
             client.to(privateId.toString()).emit('receiveMessage', buffer)
                    } else {
