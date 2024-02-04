@@ -6,7 +6,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
         super({
             clientID: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: 'https://tealcian-backend-production-3d2b.up.railway.app/auth/github-redirect',
+            callbackURL: 'http://localhost:1234/auth/github-redirect',
             scope: ['user'],
         })
     }

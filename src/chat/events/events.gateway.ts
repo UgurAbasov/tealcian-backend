@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
 
 @WebSocketGateway({
-    cors: { origin: "https://tealcian-frontend.vercel.app", methods: ["GET", "POST"] }})
+    cors: { origin: "http://localhost:3000", methods: ["GET", "POST"] }})
   export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
@@ -27,13 +27,15 @@ import groupMessagesByDate from 'src/utils/separateTime';
 
     }
     @SubscribeMessage('addMessage')
-    async handleMessega(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto) {
+    async handleMessega(@ConnectedSocket() client: Socket, @MessageBody() getUser: any) {
         try {
-        if (getUser.targetType === 'private') {
-            const privateId = getUser.targetId
+            let Data = new TextDecoder().decode(getUser);
+            let result = JSON.parse(Data)
+        if (result.targetType === 'private') {
+            const privateId = result.targetId
             const user = await this.prismaService.user.findUnique({
                 where: {
-                    refreshToken: getUser.refreshToken
+                    refreshToken: result.refreshToken
                 }
             })
             const privated = await this.prismaService.private.findUnique({
@@ -45,21 +47,23 @@ import groupMessagesByDate from 'src/utils/separateTime';
                 data: {
                     privateId: privated.id,
                     roomId: null,
-                    body: getUser.message,
+                    body: result.message,
                     userId: user.id
                 }
             })
             const resultObj = {
-                body: `${getUser.message}`,
+                body: `${result.message}`,
                 user: user.name,
                 own: user.id,
                 time: message.createdAt.toString(),
-            }
+            } 
 
             var buffer = new TextEncoder().encode(JSON.stringify(resultObj));
+            console.log(buffer,2)
+        
             client.nsp.to(client.id).emit('receiveMessage', buffer)
             client.to(privateId.toString()).emit('receiveMessage', buffer)
-                   } else {
+                   } else { 
             const roomId = Number(getUser.targetId)
             const user = await this.prismaService.user.findUnique({
                 where: {
@@ -89,9 +93,11 @@ import groupMessagesByDate from 'src/utils/separateTime';
 }
 
 @SubscribeMessage('joinToAll')
-async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUserDto){
+async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: any){
     try {
-        client.join(getUser.targetId.toString())
+        let Data = new TextDecoder().decode(getUser);
+        let result = JSON.parse(Data)
+        client.join(result.targetId.toString())
         client.join(client.id)
 } catch (e) {
     return e
@@ -99,16 +105,18 @@ async joinToAll(@ConnectedSocket() client: Socket, @MessageBody() getUser: GetUs
 }
 
 @SubscribeMessage('sendNotification')
-async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: SendNotification){
+async sendNotification(@ConnectedSocket() client: Socket, @MessageBody() getUser: any){
     try {
+        let Data = new TextDecoder().decode(getUser);
+        let result = JSON.parse(Data)
         const user = await this.prismaService.user.findUnique({
             where: {
-                refreshToken: getUser.refreshToken
+                refreshToken: result.refreshToken
             }
         })
-        const resultObj = { message: getUser.message, userId: user.id, privateId: getUser.roomId }
-        let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
-        client.to(getUser.roomId.toString()).emit('sendNotification', buffer)
+        const resultObj = { message: result.message, userId: user.id, privateId: result.roomId }
+        var buffer = new TextEncoder().encode(JSON.stringify(resultObj));
+        client.to(result.roomId.toString()).emit('sendNotification', buffer)
 } catch (e) {
 
     }
@@ -166,7 +174,7 @@ async deleteMessage(@ConnectedSocket() client: Socket, @MessageBody() message: D
         const resultObj = {
             arrayResult: groupMessagesByDate(arr)
         }
-        let buffer = Buffer.from(JSON.stringify(resultObj), 'utf8');
+        var buffer = new TextEncoder().encode(JSON.stringify(resultObj));
         client.nsp.to(client.id).emit('deleteMessage', buffer)
         client.to(message.privateId.toString()).emit('deleteMessage', buffer)
     } catch(e) {
