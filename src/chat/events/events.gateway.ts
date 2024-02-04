@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import groupMessagesByDate from 'src/utils/separateTime';
 
 @WebSocketGateway({
-    cors: { origin: "http://localhost:3000", methods: ["GET", "POST"] }})
+    cors: { origin: `${process.env.FRONTEND_URL}`, methods: ["GET", "POST"] }})
   export class EventGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
     @WebSocketServer()
     server: Server
