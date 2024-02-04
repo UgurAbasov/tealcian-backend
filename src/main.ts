@@ -8,7 +8,6 @@ async function bootstrap() {
     origin: `${process.env.FRONTEND_URL}`,
     credentials: true
   })
-  // await app.listen(process.env.PORT || '0.0.0.0');
-  app.listen(1234)
+  await app.listen(process.env.PORT || '0.0.0.0');
 }
 bootstrap();
