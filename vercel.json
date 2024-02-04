@@ -1,1 +1,38 @@
-{ "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
+{
+    "version": 2,
+    "env": {
+        "POSTGRES_URL": "postgres://default:Wt9DJrEyo0up@ep-young-sun-64112127-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb",
+        "POSTGRES_PRISMA_URL": "postgres://default:Wt9DJrEyo0up@ep-young-sun-64112127-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb?pgbouncer=true&connect_timeout=15",
+        "POSTGRES_URL_NON_POOLING": "postgres://default:Wt9DJrEyo0up@ep-young-sun-64112127.us-east-1.postgres.vercel-storage.com:5432/verceldb",
+        "POSTGRES_USER": "default",
+        "POSTGRES_HOST": "ep-young-sun-64112127-pooler.us-east-1.postgres.vercel-storage.com",
+        "POSTGRES_PASSWORD": "Wt9DJrEyo0up",
+        "POSTGRES_DATABASE": "verceldb",
+        "ACCESS_SECRET": "access-key",
+        "REFRESH_SECRET": "refresh-key",
+        "GOOGLE_CLIENT_ID": "862089453053-dge8rk8k706qi6sp569b0dggb0pk4f42.apps.googleusercontent.com",
+        "GOOGLE_CLIENT_SECRET": "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",
+        "GITHUB_CLIENT_ID": "541df22877236c1be3e5",
+        "GITHUB_CLIENT_SECRET": "67e12823fe62ce24684fa2ae403722d151e3d2e5",
+        "ENCRYPT": "themost"
+      },
+      "builds": [
+        {
+            "src": "src/main.ts",
+            "use": "@vercel/node"
+        }
+      ],
+      "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "src/main.ts",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ]
+        }
+      ]
+      
+}
