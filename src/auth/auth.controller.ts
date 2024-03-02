@@ -9,13 +9,14 @@ import { AuthService } from './auth.service';
 import { AtGuard } from './guards/at.guard';
 import { Response } from 'express';
 import { Request } from '@nestjs/common';
+import { PG_CONNECTION } from "../constants";
+import { Inject } from "@nestjs/common";
 @Controller('auth')
 export class AuthController {
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        @Inject(PG_CONNECTION) private pool: any
     ) {}
-
-
     @Post('sign')
     sign(@Body() registerDto: RegisterDto) {
         return this.authService.sign(registerDto);
@@ -34,14 +35,10 @@ export class AuthController {
     
 
     @UseGuards(RtGuard)
-    @Post('refresh')
-    getRefresh(@Body() refreshTokenObj: {refreshToken: string}) {
-        return this.authService.refreshToken(refreshTokenObj)
+    @Get('refresh')
+    getRefresh(@Request() req) {
+        return this.authService.refreshToken(req)
     }
-
-   
-
-
   @Get('google-redirect')
   @UseGuards(GoogleOAuthGuard)
   googleRegister(@Request() req, @Res() res: Response) {
@@ -53,4 +50,5 @@ export class AuthController {
   githubRegister(@Request() req, @Res() res: Response) {
     return this.authService.githubRegister(req,res);
   }
+
 }

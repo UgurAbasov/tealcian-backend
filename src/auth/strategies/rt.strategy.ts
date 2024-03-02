@@ -2,40 +2,36 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { PG_CONNECTION } from "../../constants";
 
 
-type JwtPayload = {
-    email: string
-    sub: number
-}
 
-type JwtPayloadWithRt = JwtPayload & {refreshToken: string}
 
 @Injectable()
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
-  private extractTokenFromRequest(request: Request): string | undefined {
-    const refreshToken = request.body.refreshToken; // Предполагается, что refreshToken находится в поле 'refreshToken' тела запроса
-    return refreshToken;
-  }
 
-  constructor(prismaService: PrismaService) {
+
+  constructor(prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {
     super({
-      jwtFromRequest: (request: Request) => this.extractTokenFromRequest(request),
-      secretOrKey: process.env.REFRESH_SECRET, 
-      passReqToCallback: true,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.REFRESH_SECRET,
+      ignoreExpiration: false
     });
 
   }
 
-  validate(req: Request, payload: JwtPayload): JwtPayloadWithRt {
-    const refreshToken = this.extractTokenFromRequest(req);
- 
-    if (!refreshToken) throw new ForbiddenException('Refresh token expired');
+  async validate(payload: any) {
+    const userId = payload.sub;
+    const userQuery = {
+      text: `SELECT * FROM users WHERE id = $1`,
+      values: [userId]
+    }
 
-    return {
-      ...payload,
-      refreshToken,
-    };
+    const user = await this.pool.query(userQuery)
+    if (user.rows.length === 0){
+      throw new UnauthorizedException();
+    }
+    return user.rows[0];
   }
 }

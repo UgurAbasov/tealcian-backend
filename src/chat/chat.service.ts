@@ -1,5 +1,5 @@
 import { CreateRoomDto } from './dto/createRoom.dto';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Request } from "@nestjs/common";
 import { GetUserDto } from './dto/getUser.dto';
 import { AddUserDto } from './dto/addUser.dto';
 import { PrismaService } from './../prisma/prisma.service';
@@ -10,173 +10,160 @@ import { Prisma } from '@prisma/client';
 import simpleHash from 'src/utils/hash';
 import groupMessagesByDate from 'src/utils/separateTime';
 import { GetMessage } from './dto/getMessage.dto';
-import { createHash, generateKeyPairSync, publicEncrypt, randomBytes, createCipheriv, createCipher } from 'crypto';
+import {
+  createHash,
+  generateKeyPairSync,
+  publicEncrypt,
+  randomBytes,
+  createCipheriv,
+  createCipher,
+} from 'crypto';
+import { PG_CONNECTION } from "../constants";
+import { AddUserToRoom,} from "./dto/addUserToRoom.dto";
 
 @Injectable()
 export class ChatService {
-    constructor(private prismaService: PrismaService) { }
-    async createRoom(createRoom: CreateRoomDto) {
-        try {
-            // find owner
-            const owner = await this.prismaService.user.findUnique({
-                where: {
-                    refreshToken: createRoom.refreshToken
-                }
-            })
-            if (!owner) {
-                throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            const unknowsUsers = []
-            const users = [owner.id]
-            for(let i = 0; i < createRoom.users.length; i++){
-                const searchingUsers = await this.prismaService.user.findUnique({
-                    where: {
-                        email: createRoom.users[i]
-                    }
-                })
-                if(!searchingUsers){
-                    unknowsUsers.push(createRoom.users[i])
-                } else {
-                    users.push(searchingUsers.id)
-                }
-            }
-            if(unknowsUsers.length > 0){
-                const splitUsers = unknowsUsers.join(', ')
-                throw new HttpException(`We don't know about these users: ${splitUsers}`, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            // create room schema
-            const ownerId = owner.id
-            const room = await this.prismaService.room.create({
-                data: {
-                    name: createRoom.name,
-                    type: 'room',
-                    ownerId,
-                    uniqueId: simpleHash(createRoom.users)
-                }
-            })
+  constructor(private prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {}
+  async createRoom(createRoom: CreateRoomDto, req) {
+    try {
+      // find owner
+      const user = req.user.id
 
-            // take users
-            for (let i = 1; i <= users.length; i++) {
-                const rooming = await this.prismaService.userRoom.create({
-                    data: {
-                        userId: users[i],
-                        roomId: room.id
-                    }
-                })
-            }
-            return {
-                result: 'goood'
-            }
+      // create room
+      const createRoomQuery = {
+        text: `INSERT INTO room(createdAT, ownerId, name) VALUES($1,$2,$3) RETURNING id`,
+        values: [new Date().toISOString().slice(0, 19).replace('T', ' '), user, createRoom.name]
+      }
+
+      const creatingRoom = await this.pool.query(createRoomQuery)
+
+
+      const addOwnerToRoomQuery = {
+        text: `INSERT INTO user_room(userId, roomId) VALUES($1,$2)`,
+        values: [user, creatingRoom.rows[0].id]
+      }
+
+      const addOwnerToRoom = await this.pool.query(addOwnerToRoomQuery)
+
+      return 0
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                throw new HttpException('You already have chat with this user', HttpStatus.INTERNAL_SERVER_ERROR);
-            }
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async createPrivate(createPrivate: CreatePrivateDto) {
+    async addUsersToRoom(addUserToRoom: AddUserToRoom){
+    try {
+
+      const areUsersQuery = {
+        text: `SELECT COUNT(*)
+      FROM users
+      WHERE nickname IN ($1)` ,
+        values: addUserToRoom.users
+      }
+
+      const areUsers = await this.pool.query(areUsersQuery)
+
+      if(areUsers.rows.length < addUserToRoom.users.length){
+        throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      let usersData = addUserToRoom.users
+      for (let i = 0; i < usersData.length; i++) {
+        if (i % 2 === 0) {
+          usersData.splice(i, 0, addUserToRoom.roomId)
+        }
+      }
+
+      const addUserToRoomQuery = {
+        text: `INSERT INTO user_room(roomId, userId) VALUES($1,$2)`,
+        values: usersData
+      }
+
+      const addUsersToRoom = await this.pool.query(addUserToRoomQuery)
+      return 0
+    } catch (e){
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+    async createPrivate(createPrivate: CreatePrivateDto, req) {
         try {
-            const user = await this.prismaService.user.findUnique({
-                where: {
-                    refreshToken: createPrivate.refreshToken
-                }
-            })
-            if (!user) {
-                throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            const searchingUser = await this.prismaService.user.findUnique({
-                where: {
-                    email: createPrivate.userEmail
-                }
-            })
-            if (!searchingUser) {
-                throw new Error(`We don't know about this user`)
-            }
+          const user = req.user.id
 
-            const arrayofEmail = [searchingUser.email, user.email]
-            const privated = await this.prismaService.private.create({
-                data: {
-                uniqueId: simpleHash(arrayofEmail),
-                  name: createPrivate.userEmail,
-                  type: 'private',
-                },
-              });
+          const isUserQuery = {
+            text: `SELECT *
+            FROM users
+            WHERE nickname = $1` ,
+            values: [createPrivate.nickname]
+          }
 
+          const isUser = await this.pool.query(isUserQuery)
 
-              const arrayOfId = [searchingUser.id, user.id]
-             for (let i = 1; i <= 2; i++) {
-              const privating = await this.prismaService.userPrivate.create({
-                data: {
-                    userId: arrayOfId[i-1],
-                    privateId: privated.id
-                }
-              });
-            }
-            
-            return {
-                result: 'success',
-            }
+          if(isUser.rows.length < 1) {
+            throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+          }
+
+          const createRoomQuery = {
+            text: `INSERT INTO private(createdAT) VALUES($1) RETURNING id`,
+            values: [new Date().toISOString().slice(0, 19).replace('T', ' ')]
+          }
+
+          const creatingRoom = await this.pool.query(createRoomQuery)
+
+          const roomId = creatingRoom.rows[0].id
+          const addUsersQuery = {
+            text: `INSERT INTO private_room(userId, roomId) VALUES($1,$2)`,
+            values: [user, roomId, isUser.rows[0].id, roomId]
+          }
+
+          const addUsers = await this.pool.query(addUsersQuery)
+          return 0
+
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                throw new HttpException('You already have chat with this user', HttpStatus.INTERNAL_SERVER_ERROR);
-            }
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    async getUserPrivates(refreshToken: any){
+    async getRooms(req){
         try {
-            const user = await this.prismaService.user.findUnique({
-              where: {
-                refreshToken: refreshToken.refreshToken,
-              },
-              include: {
-                privates: true,
-              },
-            });
+          const user = req.user.id
 
-        if (!user) {
-              throw new HttpException(`Something went wrong`, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+          const getPrivatesQuery = {
+            text: `
+SELECT user_private.privateId, users.first_name, users.last_name, users.avatar, private_messages.body, private_messages.createdAT FROM users
+  INNER JOIN user_private ON user_private.userId = users.id
+  INNER JOIN private_messages ON private_messages.privateId = user_private.privateId
+  WHERE user_private.privateId = (SELECT privateId FROM user_private WHERE userId = $1) 
+  ORDER BY private_messages.createdAT DESC
+  LIMIT 1;
+`,
+            values: [user]
+          }
 
-            const objectArr = [];
-            let privateId = []
-            for (let i = 0; i < user.privates.length; i++) {
-              const userPrivateRecords = await this.prismaService.userPrivate.findMany({
-                where: {
-                  privateId: user.privates[i].privateId,
-                },
-              });
-              privateId.push(user.privates[i].privateId)
-              for (let j = 0; j < userPrivateRecords.length; j++) {
-                const findUser = await this.prismaService.user.findUnique({
-                  where: {
-                    id: userPrivateRecords[j].userId,
-                  },
-                });
+          const getPrivates = await this.pool.query(getPrivatesQuery)
 
-                const findPrivate = await this.prismaService.private.findUnique({
-                    where: {
-                        id: user.privates[i].privateId
-                    }
-                })
-          
-                if (findUser && findUser.id !== user.id) {
-                    objectArr.push({user: findUser.name, privateId: findPrivate.uniqueId});
-                }
-              }
+          const getRoomsQuery = {
+            text: `SELECT room_messages.body, room_messages.createdAT, room.name, room.id FROM room
+                   INNER JOIN room_messages ON room_messages.roomId = room.id
+                   WHERE room.id = (SELECT roomId FROM user_room WHERE userId = $1)
+                   ORDER BY room_messages.createdAT DESC
+                   LIMIT 1;
+                   `,
+            values: [user]
+          }
+
+          const getRooms = await this.pool.query(getRoomsQuery)
+          const resultArray = getRooms.rows.concat(getPrivates.rows)
+          return resultArray.sort((a: any, b: any) => {
+            if(new Date(a.createdat) > new Date(b.createdat)) {
+              return -1
+            } else if(new Date(a.createdat) > new Date(b.createdat)){
+              return 1
             }
-            const originalData = JSON.stringify(objectArr);
-            const algorithm = 'aes-256-cbc';
-             const cipher = createCipher(algorithm, 'themost');
-             let encrypted = cipher.update(originalData, 'utf8', 'hex');
-            encrypted += cipher.final('hex');
-            return {
-                objectArr: encrypted
-            }
-          } catch (e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+            return 0
+          })
+        } catch (e) {
+            throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
           }
     }
 

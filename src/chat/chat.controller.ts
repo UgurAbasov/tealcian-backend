@@ -1,40 +1,45 @@
 import { CreatePrivateDto } from './dto/createPrivate.dto';
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { ChatService } from './chat.service';
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Request, UseGuards } from "@nestjs/common";
 import { GetMessage } from './dto/getMessage.dto';
-
+import { AddUserToRoom } from "./dto/addUserToRoom.dto";
+import { RtGuard } from "../auth/guards/rt.guard";
 @Controller('chat')
 export class ChatController {
     constructor(private chatService:ChatService){}
 
+    @UseGuards(RtGuard)
     @Post('room')
-    createRoom(@Body() createRoom: CreateRoomDto){
-        return this.chatService.createRoom(createRoom)
+    createRoom(@Body() createRoom: CreateRoomDto, @Request() req){
+        return this.chatService.createRoom(createRoom, req)
     }
 
     @Post('private')
-    createPrivate(@Body() createPrivate: CreatePrivateDto){
-        return this.chatService.createPrivate(createPrivate)
+    createPrivate(@Body() createPrivate: CreatePrivateDto, @Request() req){
+        return this.chatService.createPrivate(createPrivate, req)
     }
 
-    @Post('getPrivates')
-    getUserPrivates(@Body() refreshToken: any){
-        return this.chatService.getUserPrivates(refreshToken)
+    @UseGuards(RtGuard)
+    @Get('getPrivates')
+    getUserPrivates(@Request() req){
+        return this.chatService.getRooms(req)
     }
 
-    @Post('getMessages')
-    getMessages(@Body() getMessage:GetMessage){
-        return this.chatService.getMessages(getMessage)
+    // @Post('getMessages')
+    // getMessages(@Body() roomId:string, @Request() req){
+    //     return this.chatService.getMessages(roomId, req)
+    // }
+
+    @UseGuards(RtGuard)
+    @Post('addsUsers')
+    addUsers(@Body() addUserToRoom:AddUserToRoom){
+        return this.chatService.addUsersToRoom(addUserToRoom)
     }
 
     @Get('cleanData')
     cleanData(){
         return this.chatService.cleanData()
-    }
-    @Post('getLastMessages')
-    getLastMessages(@Body() getMessage:GetMessage){
-        return this.chatService.getLastMessages(getMessage)
     }
 
 }

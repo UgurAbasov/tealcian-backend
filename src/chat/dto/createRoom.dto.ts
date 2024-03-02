@@ -1,5 +1,5 @@
 export interface CreateRoomDto {
-    users: Array<string>
-    name: string,
-    refreshToken: string
+    userId: string
+    roomId: string
+    name: string
 }
