@@ -17,7 +17,7 @@ import {sha256} from 'js-sha256'
 export class ChatGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
-    constructor(@Inject(PG_CONNECTION) private pool: any, @InjectRedis(DEFAULT_REDIS_NAMESPACE) private  readonly redis: Redis) {}
+    constructor(@Inject(PG_CONNECTION) private pool: any) {}
 
     handleDisconnect(@ConnectedSocket() client: WebSocket) {
         if(this.removeClientFromRoom(client)){
