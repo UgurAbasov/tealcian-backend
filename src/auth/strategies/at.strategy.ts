@@ -1,4 +1,3 @@
-import { PrismaService } from '../../prisma/prisma.service';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from "@nestjs/common";
@@ -6,7 +5,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { PG_CONNECTION } from "../../constants";
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {
+  constructor(@Inject(PG_CONNECTION) private pool: any) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

@@ -1,4 +1,3 @@
-import { PrismaService } from '../../prisma/prisma.service';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
@@ -11,7 +10,7 @@ import {WsException} from "@nestjs/websockets";
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
 
 
-  constructor(prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {
+  constructor(@Inject(PG_CONNECTION) private pool: any) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.REFRESH_SECRET,

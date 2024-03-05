@@ -2,7 +2,6 @@ import { CreateRoomDto } from './dto/createRoom.dto';
 import { Inject, Injectable, Request } from "@nestjs/common";
 import { GetUserDto } from './dto/getUser.dto';
 import { AddUserDto } from './dto/addUser.dto';
-import { PrismaService } from './../prisma/prisma.service';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { CreatePrivateDto } from './dto/createPrivate.dto';
@@ -23,7 +22,7 @@ import { AddUserToRoom,} from "./dto/addUserToRoom.dto";
 
 @Injectable()
 export class ChatService {
-  constructor(private prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {}
+  constructor(@Inject(PG_CONNECTION) private pool: any) {}
   async createRoom(createRoom: CreateRoomDto, req) {
     try {
       // find owner
@@ -168,98 +167,98 @@ SELECT user_private.privateId, users.first_name, users.last_name, users.avatar, 
     }
 
     async getMessages(getMessage:GetMessage){
-        try {
-            const room = await this.prismaService.private.findUnique({
-                where: {
-                    uniqueId: getMessage.roomId
-                },
-                include: {
-                    message: {
-                        select: {
-                            body: true,
-                            createdAt: true,
-                            userId: true
-                        }
-                    }
-                }
-            })
-    
-            const getRequestUser = await this.prismaService.user.findUnique({
-                where: {
-                    refreshToken: getMessage.refreshToken
-                }
-            })
-    
-            const arr = []
-            for(let i = 0; i < room.message.length; i++){
-                const getUser = await this.prismaService.user.findUnique({
-                    where: {
-                        id: room.message[i].userId
-                    }
-                })
-                arr.push({
-                    body: room.message[i].body,
-                    time: room.message[i].createdAt,
-                    userName: getUser.name,
-                    own: getUser.id
-                })
-            }
-            const originalData = JSON.stringify(groupMessagesByDate(arr));
-            const algorithm = 'aes-256-cbc';
-             const cipher = createCipher(algorithm, 'themost');
-             let encrypted = cipher.update(originalData, 'utf8', 'hex');
-            encrypted += cipher.final('hex');
-            return {
-                objectArr: encrypted
-            }
-        } catch(e) {
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        // try {
+        //     const room = await this.prismaService.private.findUnique({
+        //         where: {
+        //             uniqueId: getMessage.roomId
+        //         },
+        //         include: {
+        //             message: {
+        //                 select: {
+        //                     body: true,
+        //                     createdAt: true,
+        //                     userId: true
+        //                 }
+        //             }
+        //         }
+        //     })
+        //
+        //     const getRequestUser = await this.prismaService.user.findUnique({
+        //         where: {
+        //             refreshToken: getMessage.refreshToken
+        //         }
+        //     })
+        //
+        //     const arr = []
+        //     for(let i = 0; i < room.message.length; i++){
+        //         const getUser = await this.prismaService.user.findUnique({
+        //             where: {
+        //                 id: room.message[i].userId
+        //             }
+        //         })
+        //         arr.push({
+        //             body: room.message[i].body,
+        //             time: room.message[i].createdAt,
+        //             userName: getUser.name,
+        //             own: getUser.id
+        //         })
+        //     }
+        //     const originalData = JSON.stringify(groupMessagesByDate(arr));
+        //     const algorithm = 'aes-256-cbc';
+        //      const cipher = createCipher(algorithm, 'themost');
+        //      let encrypted = cipher.update(originalData, 'utf8', 'hex');
+        //     encrypted += cipher.final('hex');
+        //     return {
+        //         objectArr: encrypted
+        //     }
+        // } catch(e) {
+        //     throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        // }
     }
 
     async cleanData(){
-        try{
-        const deletedMessages = await this.prismaService.message.deleteMany({
-            where: {},
-          });
-        } catch(e) {
-            console.log(e)
-        }
-    }
-
-    async getLastMessages(getMessage:GetMessage){
-        try {
-            const user = await this.prismaService.user.findUnique({
-                where: {
-                  refreshToken: getMessage.refreshToken,
-                },
-                include: {
-                  privates: true,
-                },
-              });
-              console.log(user)
-              const usersPrivates = []
-              for(let i = 0; i < user.privates.length; i++){
-                const findPrivate = await this.prismaService.private.findMany({
-                    where: {
-                        id: user.privates[i].privateId
-                    },
-                    select: {
-                        message: true
-                    }
-                })
-                console.log(findPrivate)
-                for(let j = 0; j < findPrivate.length;j++){
-                    const lastMassage = findPrivate[j].message
-                    console.log(lastMassage)
-                        usersPrivates.push(lastMassage[lastMassage.length - 1].body)
-                }
-              }
-    
-              return usersPrivates
-        } catch(e){
-            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    //     try{
+    //     const deletedMessages = await this.prismaService.message.deleteMany({
+    //         where: {},
+    //       });
+    //     } catch(e) {
+    //         console.log(e)
+    //     }
+    // }
+    //
+    // async getLastMessages(getMessage:GetMessage){
+    //     try {
+    //         const user = await this.prismaService.user.findUnique({
+    //             where: {
+    //               refreshToken: getMessage.refreshToken,
+    //             },
+    //             include: {
+    //               privates: true,
+    //             },
+    //           });
+    //           console.log(user)
+    //           const usersPrivates = []
+    //           for(let i = 0; i < user.privates.length; i++){
+    //             const findPrivate = await this.prismaService.private.findMany({
+    //                 where: {
+    //                     id: user.privates[i].privateId
+    //                 },
+    //                 select: {
+    //                     message: true
+    //                 }
+    //             })
+    //             console.log(findPrivate)
+    //             for(let j = 0; j < findPrivate.length;j++){
+    //                 const lastMassage = findPrivate[j].message
+    //                 console.log(lastMassage)
+    //                     usersPrivates.push(lastMassage[lastMassage.length - 1].body)
+    //             }
+    //           }
+    //
+    //           return usersPrivates
+    //     } catch(e){
+    //         throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
     }
 }
 

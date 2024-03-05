@@ -1,7 +1,6 @@
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { HttpException, HttpStatus, Inject, Injectable, Request, Res, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from 'bcryptjs';
@@ -10,8 +9,7 @@ import * as nodemailer from 'nodemailer';
 import { PG_CONNECTION } from "../constants";
 @Injectable()
 export class AuthService {
-    constructor(private jwtService:JwtService,
-        private prismaService: PrismaService, @Inject(PG_CONNECTION) private pool: any) {}
+    constructor(private jwtService:JwtService, @Inject(PG_CONNECTION) private pool: any) {}
         async sign(registerDto: RegisterDto): Promise<Tokens> {
             try {
               const getUserQuery = {
