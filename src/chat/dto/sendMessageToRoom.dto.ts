@@ -3,4 +3,5 @@ export interface SendMessageToRoomDto {
   type: string
   body: string
   roomId: string
+  refreshToken: string
 }

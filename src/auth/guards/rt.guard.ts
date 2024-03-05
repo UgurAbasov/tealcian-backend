@@ -13,7 +13,7 @@ import {
   
     handleRequest(err: any, user: any, info: any) {
       if (err || !user) {
-        throw err || new UnauthorizedException();
+        throw new UnauthorizedException();
       }
       return user;
     }

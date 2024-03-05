@@ -9,110 +9,95 @@ import {
 import { Server, WebSocket } from 'ws';
 import { Inject, Request, UseGuards } from "@nestjs/common";
 import { PG_CONNECTION } from "../../constants";
-import { JoinToRoomDto } from "../dto/joinToRoom.dto";
 import { SendMessageToRoomDto } from "../dto/sendMessageToRoom.dto";
-import { RtGuard } from "../../auth/guards/rt.guard";
-// import { RedisService } from '@liaoliaots/nestjs-redis';
+import { InjectRedis, DEFAULT_REDIS_NAMESPACE } from '@liaoliaots/nestjs-redis';
+import { Redis } from 'ioredis'
+import {sha256} from 'js-sha256'
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
-    constructor(@Inject(PG_CONNECTION) private pool: any) {}
+    constructor(@Inject(PG_CONNECTION) private pool: any, @InjectRedis(DEFAULT_REDIS_NAMESPACE) private  readonly redis: Redis) {}
 
-    async handleDisconnect(@ConnectedSocket() client: WebSocket) {
-
+    handleDisconnect(@ConnectedSocket() client: WebSocket) {
+        if(this.removeClientFromRoom(client)){
+            console.log('Sucesefully removed')
+        }
     }
-    @UseGuards(RtGuard)
+
+
     @SubscribeMessage('joinRoom')
-    async handleJoinRoom(@ConnectedSocket() client: WebSocket, @MessageBody() joinToRoom: JoinToRoomDto) {
+    async handleJoinRoom(@ConnectedSocket() client: WebSocket, @MessageBody() joinToRoom: any) {
         try {
             if (!client['room']) {
                 client['room'] = [];
             }
 
-            if (!client['room'].includes(joinToRoom.roomId)) {
-                await this.addClientToRoom(joinToRoom.roomId, client);
-                console.log(`Client joined room: ${joinToRoom.roomId}`);
+
+            if (!client['room'].includes(joinToRoom)) {
+
+
+                await this.addClientToRoom(joinToRoom, client);
+            } else {
+                console.log('You are already in this room')
             }
         } catch (e){
-            console.log(e)
+            if(e.message.includes('uuid')){
+                console.log('Something went wrong')
+            }
+            console.log(e.message)
         }
     }
 
 
-    @UseGuards(RtGuard)
     @SubscribeMessage('sendMessageToRoom')
-    async handleMessage(@ConnectedSocket() client: WebSocket,@Request() req, @MessageBody() sendMessageToRoomDto: SendMessageToRoomDto) {
+    async handleMessage(@ConnectedSocket() client: WebSocket, @Request() req, @MessageBody() sendMessageToRoomDto: SendMessageToRoomDto) {
        try {
-           const userId = req.user.id
-           let createMessage: object;
-           const createMessageQuery = {
-               text: `INSERT INTO ${sendMessageToRoomDto.type}_messages(body, createdAT, userId, roomId) VALUES($1,$2,$3,$4)`,
-               values: [sendMessageToRoomDto.body, new Date().toISOString().slice(0, 19).replace('T', ' '), userId, sendMessageToRoomDto.roomId]
+           // if(!client['room']) {
+           //     client.close()
+           // }
+
+
+           const userQuery = {
+               text: `SELECT * FROM users WHERE refreshToken = $1`,
+               values: [sendMessageToRoomDto.refreshToken]
            }
-           createMessage = await this.pool.query(createMessageQuery).rows[0]
 
-           const result = JSON.stringify(createMessage)
+           const user = await this.pool.query(userQuery)
 
+           if(user.rows.length === 0){
+               client.close()
+           }
+
+           const checkRoomQuery = {
+               text: `SELECT * FROM room, private WHERE room.id = $1 OR private.id = $1`,
+               values: [sendMessageToRoomDto.roomId]
+           }
+
+           const checkRoom = await this.pool.query(checkRoomQuery)
+           if(checkRoom.rows.length === 0){
+               client.close()
+           }
+
+           let createMessage: any;
+           const createMessageQuery = {
+               text: `INSERT INTO ${sendMessageToRoomDto.type}_messages(body, createdAT, userId, roomId) VALUES($1,$2,$3,$4) RETURNING *`,
+               values: [sendMessageToRoomDto.body, new Date().toISOString().slice(0, 19).replace('T', ' '), user.rows[0].id, sendMessageToRoomDto.roomId]
+           }
+           createMessage = await this.pool.query(createMessageQuery)
+           const result = JSON.stringify(createMessage.rows[0])
+           const secure = sha256.hmac(result,'secret')
+           const buffer = new TextEncoder().encode(JSON.stringify(secure))
            this.server.clients.forEach((ws: WebSocket) => {
-               if (ws['room'].includes(sendMessageToRoomDto.roomId)) {
-                   ws.send(result);
-               }
+                   if (ws['room'].includes(sendMessageToRoomDto.roomId)) {
+                       ws.send(buffer);
+                   }
            });
        } catch (e) {
-           console.log(e)
+           console.log(e.message)
        }
-
     }
 
-    @UseGuards(RtGuard)
-    @SubscribeMessage('allData')
-    async sendAllData(@ConnectedSocket() client: WebSocket,  @Request() req, @MessageBody() sendMessageToRoomDto: SendMessageToRoomDto) {
-        try {
-            const user = req.user.id
-
-            // if(sendMessageToRoomDto){
-            //
-            // }
-
-            const getPrivatesQuery = {
-                text: `
-SELECT user_private.privateId, users.first_name, users.last_name, users.avatar, private_messages.body, private_messages.createdAT FROM users
-  INNER JOIN user_private ON user_private.userId = users.id
-  INNER JOIN private_messages ON private_messages.privateId = user_private.privateId
-  WHERE user_private.privateId = (SELECT privateId FROM user_private WHERE userId = $1) 
-  ORDER BY private_messages.createdAT DESC
-  LIMIT 1;
-`,
-                values: [user]
-            }
-
-            const getPrivates = await this.pool.query(getPrivatesQuery)
-
-            const getRoomsQuery = {
-                text: `SELECT room_messages.body, room_messages.createdAT, room.name, room.id FROM room
-                   INNER JOIN room_messages ON room_messages.roomId = room.id
-                   WHERE room.id = (SELECT roomId FROM user_room WHERE userId = $1)
-                   ORDER BY room_messages.createdAT DESC
-                   LIMIT 1;
-                   `,
-                values: [user]
-            }
-
-            const getRooms = await this.pool.query(getRoomsQuery)
-            const resultArray = getRooms.rows.concat(getPrivates.rows)
-            return resultArray.sort((a: any, b: any) => {
-                if(new Date(a.createdat) > new Date(b.createdat)) {
-                    return -1
-                } else if(new Date(a.createdat) > new Date(b.createdat)){
-                    return 1
-                }
-                return 0
-            })
-        } catch (e) {
-            console.log(e)
-        }
-    }
 
     private async addClientToRoom(roomId: string, client: WebSocket): Promise<void> {
         if (!client['room'].includes(roomId)) {
@@ -120,9 +105,8 @@ SELECT user_private.privateId, users.first_name, users.last_name, users.avatar, 
         }
     }
 
-    private async removeClientFromRoom(roomId: string, client: WebSocket): Promise<void> {
-        const findData = client['room'].findIndex((item) => item === roomId)
-        client['room'].splice(findData,1);
+    private removeClientFromRoom(client: WebSocket) {
+        return delete client['room']
     }
 
     private async getRoomId(roomId: string,client: WebSocket): Promise<string | undefined> {

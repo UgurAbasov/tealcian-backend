@@ -21,7 +21,7 @@ export class ChatController {
     }
 
     @UseGuards(RtGuard)
-    @Get('getPrivates')
+    @Get('getAll')
     getUserPrivates(@Request() req){
         return this.chatService.getRooms(req)
     }
@@ -41,5 +41,4 @@ export class ChatController {
     cleanData(){
         return this.chatService.cleanData()
     }
-
 }
