@@ -53,7 +53,7 @@ export class ChatGateway implements OnGatewayDisconnect {
     @SubscribeMessage('sendMessageToRoom')
     async handleMessage(@ConnectedSocket() client: WebSocket, @Request() req, @MessageBody() sendMessageToRoomDto: SendMessageToRoomDto) {
        try {
-           // if(!client['room']) {
+           // if(!this.getRoomId(client)) {
            //     client.close()
            // }
 
@@ -92,7 +92,7 @@ export class ChatGateway implements OnGatewayDisconnect {
                    if (ws['room'].includes(sendMessageToRoomDto.roomId)) {
                        ws.send(buffer);
                    }
-           });
+           })
        } catch (e) {
            console.log(e.message)
        }
@@ -109,7 +109,7 @@ export class ChatGateway implements OnGatewayDisconnect {
         return delete client['room']
     }
 
-    private async getRoomId(roomId: string,client: WebSocket): Promise<string | undefined> {
-        return client['room'][roomId];
+    private async getRoomId(client: WebSocket): Promise<string | undefined> {
+        return client['room'];
     }
 }
