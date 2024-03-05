@@ -33,11 +33,21 @@ export class ChatGateway implements OnGatewayDisconnect {
                 client['room'] = [];
             }
 
+            const checkRoomQuery = {
+                text: `SELECT * FROM room, private WHERE room.id = $1 OR private.id = $1`,
+                values: [joinToRoom]
+            }
+
+            const checkRoom = await this.pool.query(checkRoomQuery)
+            if(checkRoom.rows.length === 0){
+                client.close()
+            }
+
 
             if (!client['room'].includes(joinToRoom)) {
 
 
-                await this.addClientToRoom(joinToRoom, client);
+            await this.addClientToRoom(joinToRoom, client);
             } else {
                 console.log('You are already in this room')
             }
@@ -53,9 +63,10 @@ export class ChatGateway implements OnGatewayDisconnect {
     @SubscribeMessage('sendMessageToRoom')
     async handleMessage(@ConnectedSocket() client: WebSocket, @Request() req, @MessageBody() sendMessageToRoomDto: SendMessageToRoomDto) {
        try {
-           // if(!this.getRoomId(client)) {
-           //     client.close()
-           // }
+           if(!this.getRoomId(sendMessageToRoomDto.roomId,client)) {
+               client.close()
+               return;
+           }
 
 
            const userQuery = {
@@ -66,16 +77,6 @@ export class ChatGateway implements OnGatewayDisconnect {
            const user = await this.pool.query(userQuery)
 
            if(user.rows.length === 0){
-               client.close()
-           }
-
-           const checkRoomQuery = {
-               text: `SELECT * FROM room, private WHERE room.id = $1 OR private.id = $1`,
-               values: [sendMessageToRoomDto.roomId]
-           }
-
-           const checkRoom = await this.pool.query(checkRoomQuery)
-           if(checkRoom.rows.length === 0){
                client.close()
            }
 
@@ -109,7 +110,11 @@ export class ChatGateway implements OnGatewayDisconnect {
         return delete client['room']
     }
 
-    private async getRoomId(client: WebSocket): Promise<string | undefined> {
-        return client['room'];
+    private getRoomId(rooomId: string,client: WebSocket): Promise<string | undefined> {
+        if(client['room']){
+            return client['room'].includes(rooomId);
+        } else {
+            client.close()
+        }
     }
 }
