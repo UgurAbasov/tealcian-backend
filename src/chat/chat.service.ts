@@ -1,22 +1,9 @@
 import { CreateRoomDto } from './dto/createRoom.dto';
 import { Inject, Injectable, Request } from "@nestjs/common";
-import { GetUserDto } from './dto/getUser.dto';
-import { AddUserDto } from './dto/addUser.dto';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { CreatePrivateDto } from './dto/createPrivate.dto';
-import { Prisma } from '@prisma/client';
-import simpleHash from 'src/utils/hash';
-import groupMessagesByDate from 'src/utils/separateTime';
 import { GetMessage } from './dto/getMessage.dto';
-import {
-  createHash,
-  generateKeyPairSync,
-  publicEncrypt,
-  randomBytes,
-  createCipheriv,
-  createCipher,
-} from 'crypto';
 import { PG_CONNECTION } from "../constants";
 import { AddUserToRoom,} from "./dto/addUserToRoom.dto";
 
