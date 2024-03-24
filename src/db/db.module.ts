@@ -5,7 +5,7 @@ import { Pool } from 'pg'
 const dbProvider = {
   provide: PG_CONNECTION,
   useValue: new Pool({
-    connectionString: 'postgres://default:VJL4ihQG1vjb@ep-icy-snowflake-a44gyaz2.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require'
+    connectionString: 'url'
   })
 }
 @Module({
