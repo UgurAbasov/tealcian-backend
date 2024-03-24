@@ -77,7 +77,7 @@ export class ChatService {
           const user = req.user.id
 
           const isUserQuery = {
-            text: `SELECT *
+            text: `SELECT id
             FROM users
             WHERE nickname = $1` ,
             values: [createPrivate.nickname]
@@ -99,7 +99,7 @@ export class ChatService {
           const roomId = creatingRoom.rows[0].id
           const addUsersQuery = {
             text: `INSERT INTO private_room(userId, roomId) VALUES($1,$2)`,
-            values: [user, roomId, isUser.rows[0].id, roomId]
+            values: [user, roomId, isUser.rows[0], roomId]
           }
 
           const addUsers = await this.pool.query(addUsersQuery)
@@ -121,7 +121,7 @@ SELECT user_private.privateId, users.first_name, users.last_name, users.avatar, 
   INNER JOIN private_messages ON private_messages.privateId = user_private.privateId
   WHERE user_private.privateId = (SELECT privateId FROM user_private WHERE userId = $1) 
   ORDER BY private_messages.createdAT DESC
-  LIMIT 1;
+  LIMIT 1; 
 `,
             values: [user]
           }
