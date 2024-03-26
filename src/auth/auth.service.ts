@@ -7,28 +7,32 @@ import * as bcrypt from 'bcryptjs';
 import { Tokens } from './tokens.type';
 import * as nodemailer from 'nodemailer';
 import { PG_CONNECTION } from "../constants";
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
+
 @Injectable()
 export class AuthService {
-    constructor(private jwtService:JwtService, @Inject(PG_CONNECTION) private pool: any) {}
-        async sign(registerDto: RegisterDto): Promise<Tokens> {
+    constructor(private jwtService:JwtService, @Inject(PG_CONNECTION) private pool: any, @InjectRedis() private readonly redis: Redis) {}
+
+  async sign(registerDto: RegisterDto): Promise<Tokens> {
             try {
               const getUserQuery = {
-                text: `SELECT * FROM users WHERE email = $1 OR nickname = $2`,
-                values: [registerDto.email, registerDto.nickname]
+                text: `SELECT * FROM users WHERE nickname = $1`,
+                values: [registerDto.nickname]
               }
 
               const getUser = await this.pool.query(getUserQuery)
 
               if(getUser.rows.length > 0) {
-                throw new HttpException('This user already exists', HttpStatus.BAD_REQUEST);
+                throw new HttpException('Nickname already exist', HttpStatus.BAD_REQUEST);
               }
 
               const password = registerDto.password
               const salt = await bcrypt.genSalt(10)
               const passwordHash = await bcrypt.hash(password, salt)
               const creatingDataQuery = {
-                text: `INSERT INTO users(first_name, last_name, email, password, createdat, nickname) VALUES($1, $2, $3, $4, $5, $6) RETURNING id`,
-                values: [registerDto.firstName, registerDto.lastName , registerDto.email, passwordHash, new Date().toISOString().slice(0, 19).replace('T', ' '), registerDto.nickname]
+                text: `INSERT INTO users(username, email, password, nickname) VALUES($1, $2, $3) RETURNING id`,
+                values: [registerDto.username, registerDto.email, passwordHash, registerDto.nickname]
               }
               const creatingData = await this.pool.query(creatingDataQuery)
 
@@ -43,38 +47,108 @@ export class AuthService {
               }
               await this.pool.query(refreshQuery)
 
-              // var transporter = nodemailer.createTransport({
-              //   service: 'gmail',
-              //   auth: {
-              //     user: 'ugurabbasov65@gmail.com',
-              //     pass: 'ugurpcoder08'
-              //   }
-              // });
-              //
-              // var mailOptions = {
-              //   from: 'ugurabbasov65@gmail.com',
-              //   to: registerDto.email,
-              //   subject: 'Sending Email test',
-              //   text: 'That was easy!'
-              // };
-              //
-              // transporter.sendMail(mailOptions, function(error, info){
-              //   if (error) {
-              //     console.log(error);
-              //   } else {
-              //     console.log('Email sent: ' + info.response);
-              //   }
-              // });
-
-
               return {
                 accessToken,
                 refreshToken
               }
+
             } catch (e) {
                 throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
+
+        async sendMail(sendMail: any){
+      try {
+        const getUserQuery = {
+          text: `SELECT * FROM users WHERE email = $1`,
+          values: [sendMail.email]
+        }
+
+        const getUser = await this.pool.query(getUserQuery)
+
+        if (getUser.rows.length > 0) {
+          throw new HttpException('Verified!', HttpStatus.BAD_REQUEST);
+        }
+
+        const data = Math.floor(100000 + Math.random() * 900000)
+        const addRedis = await this.redis.set(sendMail.email, data);
+
+        let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: 'uabbasov52@gmail.com',
+            pass: 'ktbd rdgr ocfq bpwh'
+          }
+        });
+
+        let mailOptions = {
+          from: 'uabbasov52@gmail.com',
+          to: sendMail.email,
+          subject: 'Sending Email test',
+          html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Email Confirmation</title>
+        </head>
+        <body style="margin: 20px 0; padding: 0; font-family: Arial, sans-serif; background-color: #111111;">
+        <div style="border: 2px solid #24272b; margin: 20px auto; width: 60%; min-height: 400px;">
+          <div style="background-color: #111111; border-radius: 10px; padding: 20px; text-align: center;">
+           <h1 style="color: #ffffff; margin-top: 0; text-align: left;">Codersbud</h1>
+            <div style="text-align: center; width: 80%; margin: 0 auto; min-height: 300px;">
+              <h2 style="color: #ffffff;">Your confirmation code</h2>
+              <p style="color: #a0a0a0;">You can use it to log into your account.</p>
+              <hr style="border: 2px solid #24272b; width: 100%; margin: 20px auto;">
+              <h1 style="color: #4363d6;">${data}</h1>
+              <hr style="border: 2px solid #24272b; width: 100%; margin: 20px auto;">
+              <p style="color: #a0a0a0;">For security reasons, do not send this code to anyone.</p>
+              <p style="color: #a0a0a0; margin-bottom: 0;">Sincerely, Codersbud team.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+`
+        };
+
+        transporter.sendMail(mailOptions, function(error, info) {
+          if (error) {
+            throw new HttpException({
+              massage: `Make sure that you registered from our platform.`,
+              solution: 'If you registered from another platform for example from google then you need to login from google also.'
+            }, HttpStatus.BAD_REQUEST);
+          } else {
+            return 'Verification code sent to email'
+          }
+        });
+      } catch (e) {
+        console.log(e)
+      }
+        }
+
+        async verification(data: any){
+            try {
+  const isCode = await this.redis.get(data.email)
+              if(!isCode){
+                throw new HttpException(
+                  'Something went bad'
+                  , HttpStatus.BAD_REQUEST);
+              }
+      if (isCode === data.code.toString()) {
+        const deleteRedis = await this.redis.del(data.email)
+        return 0
+      } else {
+          throw new HttpException(
+            'Something went bad'
+                , HttpStatus.BAD_REQUEST);
+        }
+            } catch (e){
+                console.log(e)
+            }
+
+    }
 
         async login(loginDto: LoginDto): Promise<Tokens> {
             try {
@@ -83,6 +157,7 @@ export class AuthService {
                 values: [loginDto.email]
               }
               const isUser = await this.pool.query(isUserQuery)
+
               if(isUser.rows.length === 0){
                 throw new HttpException({
                   massage: `Make sure that you wrote correct email or password, because we couldn't find this account.`
@@ -113,7 +188,9 @@ export class AuthService {
               WHERE id = $2`,
                 values: [refreshToken, userId]
               }
+
               await this.pool.query(refreshQuery)
+
                 return {
                   accessToken,
                   refreshToken,
@@ -127,10 +204,9 @@ export class AuthService {
             const user = req.user
           
             const newAccessToken = this.jwtService.sign({sub: user.rows[0].id }, {secret: process.env.ACCESS_SECRET, expiresIn: '15m'})
-            const newRefreshToken = this.jwtService.sign({sub: user.rows[0].id}, {secret: process.env.REFRESH_SECRET, expiresIn: '30d'})
+            const newRefreshToken = this.jwtService.sign({sub: user.rows[0].id }, {secret: process.env.REFRESH_SECRET, expiresIn: '60d'})
             return {
                 accessToken: newAccessToken,
-                refreshToken: newRefreshToken
             };
           }
 
@@ -166,8 +242,8 @@ export class AuthService {
 
           if(data.rows.length === 0) {
             const creatingDataQuery = {
-              text: `INSERT INTO users(first_name, last_name, email, createdat, avatar) VALUES($1, $2, $3, $4, $5) RETURNING id`,
-              values: [given_name, family_name , email, new Date().toISOString().slice(0, 19).replace('T', ' '), picture]
+              text: `INSERT INTO users(username, email, avatar) VALUES($1, $2, $3, $4, $5) RETURNING id`,
+              values: [given_name + ' ' + family_name , email, picture]
             }
             data = await this.pool.query(creatingDataQuery)
           }
@@ -204,8 +280,8 @@ export class AuthService {
             let data = await this.pool.query(findUserQuery)
             if(data.rows.length === 0){
               const creatingDataQuery = {
-                text: `INSERT INTO users(first_name, last_name, email, createdat, avatar) VALUES($1, $2, $3, $4, $5) RETURNING id`,
-                values: [name.split(' ')[0], name.split(' ')[1] , email, new Date().toISOString().slice(0, 19).replace('T', ' '), avatar_url]
+                text: `INSERT INTO users(username, email, avatar) VALUES($1, $2, $3, $4, $5) RETURNING id`,
+                values: [name, email, avatar_url]
               }
               data = await this.pool.query(creatingDataQuery)
           }
